@@ -1,0 +1,807 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SITREP — Backoffice</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Barlow+Condensed:wght@700;800&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Inter',sans-serif;background:#f0f2f5;color:#1a1f3a;font-size:14px}
+:root{--navy:#1a2744;--accent:#c0392b;--green:#2e6e48;--orange:#e67e22;--purple:#6a3090;--border:#e0e4ea;--muted:#7a7468}
+.login-wrap{min-height:100vh;display:flex;align-items:center;justify-content:center;background:var(--navy)}
+.login-box{background:#fff;padding:48px;width:380px;border-radius:6px}
+.login-logo{font-family:'Barlow Condensed',sans-serif;font-size:42px;font-weight:800;color:var(--navy)}
+.login-logo em{color:var(--accent);font-style:normal}
+.login-sub{font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--muted);margin-bottom:32px;margin-top:4px}
+.login-label{font-size:11px;font-weight:600;color:var(--navy);margin-bottom:6px;display:block}
+.login-input{width:100%;border:1.5px solid var(--border);padding:10px 14px;font-family:'Inter',sans-serif;font-size:13px;border-radius:4px;outline:none}
+.login-input:focus{border-color:var(--navy)}
+.login-btn{width:100%;background:var(--navy);color:#fff;border:none;padding:12px;font-family:'Inter',sans-serif;font-size:12px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;cursor:pointer;border-radius:4px;margin-top:16px}
+.login-error{color:var(--accent);font-size:12px;margin-top:10px;display:none}
+.admin-wrap{display:flex;min-height:100vh}
+.sidebar{width:240px;background:var(--navy);position:fixed;top:0;left:0;bottom:0;display:flex;flex-direction:column;overflow-y:auto;z-index:10}
+.sidebar-logo{padding:20px;border-bottom:1px solid rgba(255,255,255,.08)}
+.sidebar-logo-text{font-family:'Barlow Condensed',sans-serif;font-size:28px;font-weight:800;color:#fff}
+.sidebar-logo-text em{color:var(--accent);font-style:normal}
+.sidebar-logo-sub{font-size:9px;letter-spacing:.16em;text-transform:uppercase;color:rgba(255,255,255,.3);margin-top:2px}
+.sidebar-nav{padding:12px 0;flex:1}
+.sidebar-section{font-size:9px;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:rgba(255,255,255,.2);padding:12px 20px 4px}
+.sidebar-link{display:flex;align-items:center;gap:10px;padding:9px 20px;font-size:12px;font-weight:500;color:rgba(255,255,255,.5);cursor:pointer;transition:all .15s;border-left:2px solid transparent;user-select:none}
+.sidebar-link:hover{color:#fff;background:rgba(255,255,255,.05)}
+.sidebar-link.active{color:#fff;border-left-color:var(--accent);background:rgba(255,255,255,.08)}
+.sidebar-link svg{width:14px;height:14px;flex-shrink:0}
+.sidebar-badge{margin-left:auto;background:var(--accent);color:#fff;font-size:9px;font-weight:700;padding:1px 6px;border-radius:10px}
+.publish-zone{margin:12px 16px}
+.publish-btn{width:100%;background:var(--green);color:#fff;border:none;padding:11px;font-family:'Inter',sans-serif;font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;cursor:pointer;border-radius:4px;transition:background .15s}
+.publish-btn:hover{background:#256040}
+.publish-btn:disabled{background:#999;cursor:not-allowed}
+.publish-hint{font-size:10px;color:rgba(255,255,255,.25);text-align:center;margin-top:6px;line-height:1.4}
+.sidebar-footer{padding:14px 20px;border-top:1px solid rgba(255,255,255,.08)}
+.logout-btn{font-size:11px;color:rgba(255,255,255,.3);cursor:pointer}
+.logout-btn:hover{color:#fff}
+.last-publish{font-size:9px;color:rgba(255,255,255,.2);margin-top:4px}
+.main{margin-left:240px;padding:28px;flex:1}
+.page-header{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:24px;gap:16px}
+.page-title{font-size:20px;font-weight:800;color:var(--navy)}
+.page-desc{font-size:12px;color:var(--muted);margin-top:2px}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:24px}
+.stat{background:#fff;padding:18px 20px;border-radius:6px;border:1px solid var(--border);display:flex;align-items:center;gap:14px}
+.stat-icon{width:40px;height:40px;border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.stat-icon svg{width:18px;height:18px}
+.stat-val{font-size:24px;font-weight:800;color:var(--navy);line-height:1}
+.stat-label{font-size:11px;color:var(--muted);margin-top:2px}
+.btn{padding:8px 16px;border-radius:4px;font-family:'Inter',sans-serif;font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;cursor:pointer;transition:all .15s;border:none;display:inline-flex;align-items:center;gap:6px}
+.btn-primary{background:var(--navy);color:#fff}.btn-primary:hover{background:#243560}
+.btn-success{background:var(--green);color:#fff}
+.btn-danger{background:var(--accent);color:#fff}
+.btn-ghost{background:transparent;color:var(--muted);border:1.5px solid var(--border)}.btn-ghost:hover{border-color:var(--navy);color:var(--navy)}
+.btn-sm{padding:5px 10px;font-size:10px}
+.btn-xs{padding:3px 8px;font-size:9px}
+.table-wrap{background:#fff;border:1px solid var(--border);border-radius:6px;overflow:hidden}
+.table-toolbar{padding:14px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.table-search{flex:1;max-width:260px;border:1.5px solid var(--border);border-radius:4px;padding:7px 12px;font-family:'Inter',sans-serif;font-size:12px;outline:none}
+.table-search:focus{border-color:var(--navy)}
+.filter-select{border:1.5px solid var(--border);border-radius:4px;padding:6px 10px;font-family:'Inter',sans-serif;font-size:12px;outline:none;cursor:pointer}
+table{width:100%;border-collapse:collapse}
+th{font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);padding:10px 16px;text-align:left;border-bottom:2px solid var(--border);background:#fafafa;white-space:nowrap}
+td{padding:10px 16px;border-bottom:1px solid var(--border);font-size:12px;color:var(--navy);vertical-align:middle}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:#fafafa}
+.badge{display:inline-flex;align-items:center;padding:2px 8px;border-radius:3px;font-size:9px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;white-space:nowrap}
+.badge-green{background:#e8f5ee;color:var(--green)}
+.badge-gray{background:#f0f0f0;color:var(--muted)}
+.badge-navy{background:#e8ecf5;color:var(--navy)}
+.badge-orange{background:#fef3e8;color:var(--orange)}
+.badge-purple{background:#f3eef8;color:var(--purple)}
+.actions{display:flex;gap:4px;align-items:center}
+.loading{padding:32px;text-align:center;color:var(--muted);font-size:12px}
+.empty-state{padding:48px;text-align:center;color:var(--muted)}
+.empty-state-icon{font-size:40px;margin-bottom:12px}
+.empty-state-text{font-size:14px;font-weight:600;color:var(--navy);margin-bottom:4px}
+.sortable-row.dragging-item{opacity:.4;background:#f0f4ff !important}
+.sortable-row.drag-over-top{border-top:2px solid var(--accent)}
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);display:none;align-items:flex-start;justify-content:center;z-index:100;padding:32px 20px;overflow-y:auto}
+.modal-overlay.open{display:flex}
+.modal{background:#fff;width:100%;max-width:800px;border-radius:6px;margin:auto}
+.modal-sm{max-width:520px}
+.modal-header{padding:18px 24px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;background:#fff;z-index:1;border-radius:6px 6px 0 0}
+.modal-title{font-size:15px;font-weight:700;color:var(--navy)}
+.modal-close{cursor:pointer;color:var(--muted);font-size:22px;background:none;border:none;line-height:1}
+.modal-body{padding:24px}
+.modal-footer{padding:14px 24px;border-top:1px solid var(--border);display:flex;justify-content:flex-end;gap:8px;position:sticky;bottom:0;background:#fff;border-radius:0 0 6px 6px}
+.modal-tabs{display:flex;border-bottom:2px solid var(--border);margin-bottom:24px}
+.modal-tab{padding:8px 16px;font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-2px;transition:all .15s}
+.modal-tab.active{color:var(--navy);border-bottom-color:var(--accent)}
+.tab-content{display:none}.tab-content.active{display:block}
+.form-row{margin-bottom:16px}
+.form-label{font-size:11px;font-weight:600;letter-spacing:.04em;color:var(--navy);margin-bottom:5px;display:flex;align-items:center;gap:6px}
+.required{color:var(--accent)}
+.form-hint{font-size:10px;color:var(--muted);margin-top:3px}
+.form-input,.form-select,.form-textarea{width:100%;border:1.5px solid var(--border);padding:8px 12px;font-family:'Inter',sans-serif;font-size:13px;border-radius:4px;outline:none;transition:border-color .15s;color:var(--navy);background:#fff}
+.form-input:focus,.form-select:focus,.form-textarea:focus{border-color:var(--navy)}
+.form-textarea{min-height:100px;resize:vertical}
+.form-textarea.tall{min-height:220px}
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.form-section-title{font-size:10px;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:var(--muted);padding-bottom:8px;border-bottom:1px solid var(--border);margin-bottom:16px;margin-top:8px}
+.slug-preview{font-size:11px;color:var(--muted);margin-top:4px;font-family:monospace;background:#f5f5f5;padding:4px 8px;border-radius:3px}
+.char-count{font-size:10px;color:var(--muted);text-align:right;margin-top:3px}
+.form-check{display:flex;align-items:center;gap:8px;cursor:pointer;padding:7px 12px;border:1.5px solid var(--border);border-radius:4px;user-select:none}
+.form-check input{width:14px;height:14px;accent-color:var(--navy);cursor:pointer}
+.form-check-label{font-size:12px;font-weight:500}
+.checks-row{display:flex;gap:10px;flex-wrap:wrap}
+.upload-zone{border:2px dashed var(--border);border-radius:6px;padding:32px;text-align:center;cursor:pointer;transition:all .15s;background:#fafafa;margin-bottom:16px}
+.upload-zone:hover,.upload-zone.drag-over{border-color:var(--navy);background:#f0f4ff}
+.media-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px}
+.media-card{background:#fff;border:1.5px solid var(--border);border-radius:6px;overflow:hidden;cursor:pointer;transition:all .15s;position:relative}
+.media-card:hover{border-color:var(--navy)}
+.media-thumb{width:100%;height:100px;object-fit:cover;display:block;background:#f0f0f0}
+.media-info{padding:8px 10px}
+.media-name{font-size:11px;font-weight:600;color:var(--navy);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.media-meta{font-size:10px;color:var(--muted);margin-top:2px}
+.media-del{position:absolute;top:4px;right:4px;background:var(--accent);color:#fff;border:none;border-radius:3px;width:20px;height:20px;cursor:pointer;display:none;align-items:center;justify-content:center;font-size:12px}
+.media-card:hover .media-del{display:flex}
+.ticker-bar{background:var(--navy);padding:8px 16px;overflow:hidden;white-space:nowrap;border-radius:4px;margin-bottom:16px}
+.ticker-anim{display:inline-block;animation:scroll 30s linear infinite;font-size:11px;color:rgba(255,255,255,.6)}
+.ticker-anim strong{color:#fff}
+@keyframes scroll{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}
+.ticker-item{display:flex;align-items:center;gap:8px;background:#fafafa;border:1px solid var(--border);padding:10px 12px;border-radius:4px;margin-bottom:8px}
+.ticker-tag{font-size:9px;font-weight:700;text-transform:uppercase;padding:2px 8px;background:var(--navy);color:#fff;border-radius:2px;flex-shrink:0;min-width:60px;text-align:center}
+.ticker-del{color:var(--accent);cursor:pointer;background:none;border:none;font-size:18px;flex-shrink:0}
+.section{display:none}.section.active{display:block}
+.toast{position:fixed;bottom:24px;right:24px;background:var(--navy);color:#fff;padding:12px 20px;border-radius:6px;font-size:12px;font-weight:500;z-index:200;transform:translateY(100px);opacity:0;transition:all .3s;max-width:320px}
+.toast.show{transform:translateY(0);opacity:1}
+.toast.success{background:var(--green)}
+.toast.error{background:var(--accent)}
+/* PUBLISH MODAL */
+.publish-progress{margin-top:16px}
+.progress-bar-wrap{background:#f0f2f5;border-radius:4px;height:8px;overflow:hidden;margin-bottom:8px}
+.progress-bar{background:var(--green);height:100%;border-radius:4px;transition:width .3s;width:0%}
+.progress-log{font-size:11px;color:var(--muted);font-family:monospace;max-height:150px;overflow-y:auto;background:#f5f5f5;padding:10px;border-radius:4px;display:flex;flex-direction:column;gap:4px}
+.progress-log .log-ok{color:var(--green)}
+.progress-log .log-err{color:var(--accent)}
+.progress-log .log-info{color:var(--muted)}
+</style>
+</head>
+<body>
+
+<div class="login-wrap" id="login-screen">
+  <div class="login-box">
+    <div class="login-logo">SIT<em>REP</em></div>
+    <div class="login-sub">Backoffice éditorial</div>
+    <label class="login-label">Mot de passe</label>
+    <input type="password" class="login-input" id="pwd-input" placeholder="••••••••" onkeydown="if(event.key==='Enter')login()">
+    <button class="login-btn" onclick="login()">Accéder →</button>
+    <div class="login-error" id="login-error">Mot de passe incorrect</div>
+  </div>
+</div>
+
+<div class="admin-wrap" id="admin-screen" style="display:none">
+  <div class="sidebar">
+    <div class="sidebar-logo">
+      <div class="sidebar-logo-text">SIT<em>REP</em></div>
+      <div class="sidebar-logo-sub">Backoffice</div>
+    </div>
+    <div class="sidebar-nav">
+      <div class="sidebar-section">Vue d'ensemble</div>
+      <div class="sidebar-link active" onclick="showSection('dashboard',this)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>Tableau de bord
+      </div>
+      <div class="sidebar-section">Contenu</div>
+      <div class="sidebar-link" onclick="showSection('articles',this)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>Articles
+        <span class="sidebar-badge" id="badge-articles">0</span>
+      </div>
+      <div class="sidebar-link" onclick="showSection('categories',this)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>Catégories
+      </div>
+      <div class="sidebar-link" onclick="showSection('auteurs',this)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>Auteurs
+      </div>
+      <div class="sidebar-link" onclick="showSection('medias',this)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>Médias
+        <span class="sidebar-badge" id="badge-medias">0</span>
+      </div>
+      <div class="sidebar-section">Programme</div>
+      <div class="sidebar-link" onclick="showSection('evenements',this)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>Événements
+      </div>
+      <div class="sidebar-section">Site</div>
+      <div class="sidebar-link" onclick="showSection('ticker',this)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>Ticker
+      </div>
+      <div class="sidebar-link" onclick="showSection('pages',this)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><polyline points="13 2 13 9 20 9"/></svg>Pages fixes
+      </div>
+      <div class="sidebar-link" onclick="window.open('https://sitrep.fr','_blank')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>Voir sitrep.fr
+      </div>
+    </div>
+    <div class="publish-zone">
+      <button class="publish-btn" id="pub-btn" onclick="openPublishModal()">🚀 Publier sur sitrep.fr</button>
+      <div class="publish-hint">Déploie automatiquement sur GitHub Pages → sitrep.fr</div>
+    </div>
+    <div class="sidebar-footer">
+      <div class="logout-btn" onclick="logout()">← Déconnexion</div>
+      <div class="last-publish" id="last-publish"></div>
+    </div>
+  </div>
+
+  <div class="main">
+
+    <!-- DASHBOARD -->
+    <div class="section active" id="section-dashboard">
+      <div class="page-header">
+        <div><div class="page-title">Tableau de bord</div><div class="page-desc" id="dash-date"></div></div>
+        <button class="btn btn-primary" onclick="openArtModal()">+ Nouvel article</button>
+      </div>
+      <div class="stats">
+        <div class="stat"><div class="stat-icon" style="background:#e8ecf5"><svg viewBox="0 0 24 24" fill="none" stroke="#1a2744" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/></svg></div><div><div class="stat-val" id="s-pub">0</div><div class="stat-label">Publiés</div></div></div>
+        <div class="stat"><div class="stat-icon" style="background:#fdf0ee"><svg viewBox="0 0 24 24" fill="none" stroke="#c0392b" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/></svg></div><div><div class="stat-val" id="s-brou">0</div><div class="stat-label">Brouillons</div></div></div>
+        <div class="stat"><div class="stat-icon" style="background:#fef3e8"><svg viewBox="0 0 24 24" fill="none" stroke="#e67e22" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="3" y1="10" x2="21" y2="10"/></svg></div><div><div class="stat-val" id="s-ev">0</div><div class="stat-label">Événements</div></div></div>
+        <div class="stat"><div class="stat-icon" style="background:#e8f5ee"><svg viewBox="0 0 24 24" fill="none" stroke="#2e6e48" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg></div><div><div class="stat-val" id="s-med">0</div><div class="stat-label">Médias</div></div></div>
+      </div>
+      <div class="table-wrap">
+        <div class="table-toolbar"><span style="font-size:12px;font-weight:600;color:var(--navy)">Derniers articles</span></div>
+        <table><thead><tr><th>Titre</th><th>Thème</th><th>Format</th><th>Auteur</th><th>Date</th><th>Statut</th></tr></thead>
+        <tbody id="dash-table"><tr><td colspan="6" class="loading">Aucun article</td></tr></tbody></table>
+      </div>
+    </div>
+
+    <!-- ARTICLES -->
+    <div class="section" id="section-articles">
+      <div class="page-header">
+        <div><div class="page-title">Articles</div><div class="page-desc">Glissez ⠿ pour réordonner — l'ordre est respecté sur le site</div></div>
+        <button class="btn btn-primary" onclick="openArtModal()">+ Nouvel article</button>
+      </div>
+      <div class="table-wrap">
+        <div class="table-toolbar">
+          <input type="text" class="table-search" placeholder="Rechercher…" oninput="renderArts(this.value)">
+          <select class="filter-select" id="f-st" onchange="renderArts()"><option value="">Tous statuts</option><option>Publié</option><option>Brouillon</option><option>Programmé</option><option>Archivé</option></select>
+          <select class="filter-select" id="f-th" onchange="renderArts()"><option value="">Tous thèmes</option><option>MENA</option><option>Europe</option><option>OSINT</option><option>Podcasts</option></select>
+          <span style="font-size:11px;color:var(--muted)" id="arts-count"></span>
+        </div>
+        <table><thead><tr><th style="width:28px"></th><th>Titre</th><th>Thème</th><th>Format</th><th>Auteur</th><th>Date</th><th>Statut</th><th>★</th><th>Actions</th></tr></thead>
+        <tbody id="arts-table"></tbody></table>
+      </div>
+    </div>
+
+    <!-- CATEGORIES -->
+    <div class="section" id="section-categories">
+      <div class="page-header"><div><div class="page-title">Catégories</div></div><button class="btn btn-primary" onclick="openCatModal()">+ Nouvelle</button></div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px">
+        <div><div style="font-size:11px;font-weight:700;letter-spacing:.15em;text-transform:uppercase;color:var(--muted);margin-bottom:10px">Thèmes</div>
+        <div class="table-wrap"><table><thead><tr><th>Nom</th><th>Slug</th><th></th></tr></thead><tbody id="themes-t"></tbody></table></div></div>
+        <div><div style="font-size:11px;font-weight:700;letter-spacing:.15em;text-transform:uppercase;color:var(--muted);margin-bottom:10px">Formats</div>
+        <div class="table-wrap"><table><thead><tr><th>Nom</th><th>Slug</th><th></th></tr></thead><tbody id="formats-t"></tbody></table></div></div>
+      </div>
+    </div>
+
+    <!-- AUTEURS -->
+    <div class="section" id="section-auteurs">
+      <div class="page-header"><div><div class="page-title">Auteurs</div></div><button class="btn btn-primary" onclick="openAutModal()">+ Nouvel auteur</button></div>
+      <div class="table-wrap"><table><thead><tr><th>Nom</th><th>Titre</th><th>Bio</th><th>Actions</th></tr></thead><tbody id="aut-table"></tbody></table></div>
+    </div>
+
+    <!-- MEDIAS -->
+    <div class="section" id="section-medias">
+      <div class="page-header"><div><div class="page-title">Bibliothèque média</div><div class="page-desc">Nommage automatique normalisé</div></div>
+        <button class="btn btn-primary" onclick="document.getElementById('media-input').click()">↑ Uploader</button>
+        <input type="file" id="media-input" accept="image/*" multiple style="display:none" onchange="handleUpload(this.files)">
+      </div>
+      <div class="upload-zone" onclick="document.getElementById('media-input').click()" ondragover="event.preventDefault();this.classList.add('drag-over')" ondrop="event.preventDefault();this.classList.remove('drag-over');handleUpload(event.dataTransfer.files)" ondragleave="this.classList.remove('drag-over')">
+        <div style="font-size:32px;margin-bottom:8px">🖼️</div>
+        <div style="font-size:13px;font-weight:600;color:var(--navy)">Glissez vos images ici ou cliquez</div>
+        <div style="font-size:11px;color:var(--muted);margin-top:4px">Nommage : sujet-lieu-mois-2026.jpg</div>
+      </div>
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+        <input type="text" class="table-search" placeholder="Rechercher…" style="max-width:240px" oninput="renderMeds(this.value)">
+        <span style="font-size:11px;color:var(--muted)" id="meds-count"></span>
+      </div>
+      <div class="media-grid" id="media-grid"><div class="loading">Aucun média</div></div>
+    </div>
+
+    <!-- EVENEMENTS -->
+    <div class="section" id="section-evenements">
+      <div class="page-header"><div><div class="page-title">Événements</div></div><button class="btn btn-primary" onclick="openEvModal()">+ Nouvel événement</button></div>
+      <div class="table-wrap"><table><thead><tr><th>Titre</th><th>Type</th><th>Date</th><th>Lieu</th><th>Intervenant</th><th>Statut</th><th>Actions</th></tr></thead>
+      <tbody id="ev-table"></tbody></table></div>
+    </div>
+
+    <!-- TICKER -->
+    <div class="section" id="section-ticker">
+      <div class="page-header"><div><div class="page-title">Ticker</div></div><button class="btn btn-success" onclick="saveTicker()">💾 Sauvegarder</button></div>
+      <div style="background:#fff;border:1px solid var(--border);border-radius:6px;padding:20px">
+        <div class="form-section-title">Aperçu</div>
+        <div class="ticker-bar"><div class="ticker-anim" id="ticker-prev"></div></div>
+        <div class="form-section-title">Éléments</div>
+        <div id="ticker-list"></div>
+        <div style="display:flex;gap:8px;margin-top:12px;align-items:flex-end">
+          <div style="width:120px"><label class="form-label">Tag</label><input type="text" class="form-input" id="t-tag" placeholder="BREAKING"></div>
+          <div style="flex:1"><label class="form-label">Texte</label><input type="text" class="form-input" id="t-text" onkeydown="if(event.key==='Enter')addTicker()"></div>
+          <button class="btn btn-primary" style="margin-top:20px" onclick="addTicker()">+ Ajouter</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- PAGES -->
+    <div class="section" id="section-pages">
+      <div class="page-header"><div><div class="page-title">Pages fixes</div></div><button class="btn btn-primary" onclick="openPgModal()">+ Nouvelle</button></div>
+      <div class="table-wrap"><table><thead><tr><th>Titre</th><th>URL</th><th>Actions</th></tr></thead><tbody id="pg-table"></tbody></table></div>
+    </div>
+
+  </div>
+</div>
+
+<!-- MODALS ARTICLES -->
+<div class="modal-overlay" id="modal-art">
+  <div class="modal">
+    <div class="modal-header"><div class="modal-title" id="art-mtitle">Nouvel article</div><button class="modal-close" onclick="closeModal('art')">×</button></div>
+    <div class="modal-body">
+      <input type="hidden" id="art-id">
+      <div class="modal-tabs">
+        <div class="modal-tab active" onclick="switchTab('art','c',this)">Contenu</div>
+        <div class="modal-tab" onclick="switchTab('art','m',this)">Méta & SEO</div>
+        <div class="modal-tab" onclick="switchTab('art','o',this)">Options</div>
+      </div>
+      <div class="tab-content active" id="art-tab-c">
+        <div class="form-row"><label class="form-label">Titre <span class="required">*</span></label><input type="text" class="form-input" id="art-titre" oninput="updateSlug(this.value)"></div>
+        <div class="form-row"><label class="form-label">Chapeau</label><input type="text" class="form-input" id="art-chapeau" placeholder="Phrase d'accroche…"></div>
+        <div class="form-row"><label class="form-label">Slug URL</label><input type="text" class="form-input" id="art-slug" oninput="document.getElementById('sp').textContent=this.value||'—'"><div class="slug-preview">sitrep.fr/articles/<span id="sp">—</span>.html</div></div>
+        <div class="form-row"><label class="form-label">Corps de l'article</label><textarea class="form-textarea tall" id="art-corps" placeholder="Rédigez ici…&#10;&#10;Sautez une ligne entre les paragraphes."></textarea></div>
+        <div class="form-row"><label class="form-label">Extrait <span style="font-weight:400;color:var(--muted)">(cartes home)</span></label><textarea class="form-textarea" id="art-extrait" style="min-height:70px" oninput="cc('art-extrait','ec',180)"></textarea><div class="char-count"><span id="ec">0</span>/180</div></div>
+      </div>
+      <div class="tab-content" id="art-tab-m">
+        <div class="form-grid">
+          <div class="form-row"><label class="form-label">Thème <span class="required">*</span></label><select class="form-select" id="art-theme"><option value="">Choisir…</option><option>MENA</option><option>Europe</option><option>OSINT</option><option>Podcasts</option><option>Événements</option><option>Services</option></select></div>
+          <div class="form-row"><label class="form-label">Format <span class="required">*</span></label><select class="form-select" id="art-format"><option value="">Choisir…</option><option>Décryptage</option><option>Note</option><option>Analyse</option><option>Entretien</option><option>Brief</option><option>Podcast</option></select></div>
+        </div>
+        <div class="form-row"><label class="form-label">Tags <span style="font-weight:400;color:var(--muted)">(virgules)</span></label><input type="text" class="form-input" id="art-tags" placeholder="Iran, nucléaire, diplomatie"></div>
+        <div class="form-grid">
+          <div class="form-row"><label class="form-label">Auteur</label><select class="form-select" id="art-auteur"><option value="">Choisir…</option></select></div>
+          <div class="form-row"><label class="form-label">Langue</label><select class="form-select" id="art-langue"><option value="FR">🇫🇷 Français</option><option value="EN">🇬🇧 Anglais</option></select></div>
+        </div>
+        <div class="form-grid">
+          <div class="form-row"><label class="form-label">Date</label><input type="date" class="form-input" id="art-date"></div>
+          <div class="form-row"><label class="form-label">Temps de lecture</label><input type="text" class="form-input" id="art-lecture" placeholder="8 min"></div>
+        </div>
+        <div class="form-row"><label class="form-label">SEO Title</label><input type="text" class="form-input" id="art-seo" oninput="cc('art-seo','sc',60)"><div class="char-count"><span id="sc">0</span>/60</div></div>
+        <div class="form-row"><label class="form-label">Meta description</label><textarea class="form-textarea" id="art-meta" style="min-height:80px" oninput="cc('art-meta','mc',155)"></textarea><div class="char-count"><span id="mc">0</span>/155</div></div>
+      </div>
+      <div class="tab-content" id="art-tab-o">
+        <div class="form-row"><label class="form-label">Image (URL)</label><input type="url" class="form-input" id="art-image" placeholder="https://…"></div>
+        <div class="form-row"><label class="form-label">Crédit image</label><input type="text" class="form-input" id="art-credit" placeholder="© Reuters"></div>
+        <div class="form-row"><label class="form-label">Statut</label><select class="form-select" id="art-statut"><option value="Brouillon">📝 Brouillon</option><option value="Programmé">⏰ Programmé</option><option value="Publié">✅ Publié</option><option value="Archivé">📦 Archivé</option></select></div>
+        <div class="form-section-title">Mise en avant</div>
+        <div class="checks-row">
+          <label class="form-check"><input type="checkbox" id="art-une"><span class="form-check-label">⭐ À la une</span></label>
+          <label class="form-check"><input type="checkbox" id="art-home"><span class="form-check-label">🏠 Home</span></label>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('art')">Annuler</button>
+      <button class="btn btn-ghost" onclick="saveArt('Brouillon')">Sauver brouillon</button>
+      <button class="btn btn-primary" onclick="saveArt('Publié')">Publier →</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL EV -->
+<div class="modal-overlay" id="modal-ev">
+  <div class="modal modal-sm">
+    <div class="modal-header"><div class="modal-title" id="ev-mtitle">Nouvel événement</div><button class="modal-close" onclick="closeModal('ev')">×</button></div>
+    <div class="modal-body">
+      <input type="hidden" id="ev-id">
+      <div class="form-row"><label class="form-label">Titre <span class="required">*</span></label><input type="text" class="form-input" id="ev-titre"></div>
+      <div class="form-grid">
+        <div class="form-row"><label class="form-label">Type</label><select class="form-select" id="ev-type"><option>Webinaire</option><option>Conférence</option><option>Live</option><option>Podcast</option><option>Table ronde</option></select></div>
+        <div class="form-row"><label class="form-label">Date</label><input type="date" class="form-input" id="ev-date"></div>
+      </div>
+      <div class="form-grid">
+        <div class="form-row"><label class="form-label">Lieu</label><input type="text" class="form-input" id="ev-lieu"></div>
+        <div class="form-row"><label class="form-label">Intervenant</label><input type="text" class="form-input" id="ev-int"></div>
+      </div>
+      <div class="form-row"><label class="form-label">Lien</label><input type="url" class="form-input" id="ev-lien"></div>
+      <div class="form-row"><label class="form-check"><input type="checkbox" id="ev-pub"><span class="form-check-label">✅ Publier</span></label></div>
+    </div>
+    <div class="modal-footer"><button class="btn btn-ghost" onclick="closeModal('ev')">Annuler</button><button class="btn btn-primary" onclick="saveEv()">Enregistrer</button></div>
+  </div>
+</div>
+
+<!-- MODAL AUTEUR -->
+<div class="modal-overlay" id="modal-aut">
+  <div class="modal modal-sm">
+    <div class="modal-header"><div class="modal-title">Auteur</div><button class="modal-close" onclick="closeModal('aut')">×</button></div>
+    <div class="modal-body">
+      <input type="hidden" id="aut-id">
+      <div class="form-grid">
+        <div class="form-row"><label class="form-label">Prénom <span class="required">*</span></label><input type="text" class="form-input" id="aut-pnom"></div>
+        <div class="form-row"><label class="form-label">Nom <span class="required">*</span></label><input type="text" class="form-input" id="aut-nom"></div>
+      </div>
+      <div class="form-row"><label class="form-label">Titre</label><input type="text" class="form-input" id="aut-titre"></div>
+      <div class="form-row"><label class="form-label">Bio</label><textarea class="form-textarea" id="aut-bio" style="min-height:80px"></textarea></div>
+      <div class="form-row"><label class="form-label">Photo URL</label><input type="url" class="form-input" id="aut-photo"></div>
+    </div>
+    <div class="modal-footer"><button class="btn btn-ghost" onclick="closeModal('aut')">Annuler</button><button class="btn btn-primary" onclick="saveAut()">Enregistrer</button></div>
+  </div>
+</div>
+
+<!-- MODAL CAT -->
+<div class="modal-overlay" id="modal-cat">
+  <div class="modal" style="max-width:440px">
+    <div class="modal-header"><div class="modal-title">Catégorie</div><button class="modal-close" onclick="closeModal('cat')">×</button></div>
+    <div class="modal-body">
+      <input type="hidden" id="cat-id">
+      <div class="form-row"><label class="form-label">Nom <span class="required">*</span></label><input type="text" class="form-input" id="cat-nom" oninput="document.getElementById('cat-slug').value=sl(this.value)"></div>
+      <div class="form-row"><label class="form-label">Slug</label><input type="text" class="form-input" id="cat-slug"></div>
+      <div class="form-row"><label class="form-label">Type</label><select class="form-select" id="cat-type"><option value="theme">Thème</option><option value="format">Format</option></select></div>
+    </div>
+    <div class="modal-footer"><button class="btn btn-ghost" onclick="closeModal('cat')">Annuler</button><button class="btn btn-primary" onclick="saveCat()">Enregistrer</button></div>
+  </div>
+</div>
+
+<!-- MODAL PAGE -->
+<div class="modal-overlay" id="modal-pg">
+  <div class="modal" style="max-width:600px">
+    <div class="modal-header"><div class="modal-title">Page fixe</div><button class="modal-close" onclick="closeModal('pg')">×</button></div>
+    <div class="modal-body">
+      <input type="hidden" id="pg-id">
+      <div class="form-row"><label class="form-label">Titre <span class="required">*</span></label><input type="text" class="form-input" id="pg-titre" oninput="document.getElementById('pg-slug').value=sl(this.value)"></div>
+      <div class="form-row"><label class="form-label">Slug</label><input type="text" class="form-input" id="pg-slug"></div>
+      <div class="form-row"><label class="form-label">Contenu</label><textarea class="form-textarea tall" id="pg-contenu"></textarea></div>
+    </div>
+    <div class="modal-footer"><button class="btn btn-ghost" onclick="closeModal('pg')">Annuler</button><button class="btn btn-primary" onclick="savePg()">Enregistrer</button></div>
+  </div>
+</div>
+
+<!-- MODAL MEDIA -->
+<div class="modal-overlay" id="modal-med">
+  <div class="modal" style="max-width:560px">
+    <div class="modal-header"><div class="modal-title">Détails</div><button class="modal-close" onclick="closeModal('med')">×</button></div>
+    <div class="modal-body">
+      <input type="hidden" id="med-id">
+      <div style="display:grid;grid-template-columns:180px 1fr;gap:16px;margin-bottom:16px">
+        <img id="med-preview" src="" style="width:180px;height:130px;object-fit:cover;border-radius:4px;border:1px solid var(--border)">
+        <div>
+          <div class="form-row"><label class="form-label">Nom</label><input type="text" class="form-input" id="med-nom"></div>
+          <div class="form-row"><label class="form-label">Alt</label><input type="text" class="form-input" id="med-alt"></div>
+        </div>
+      </div>
+      <div class="form-grid">
+        <div class="form-row"><label class="form-label">Crédit</label><input type="text" class="form-input" id="med-credit"></div>
+        <div class="form-row"><label class="form-label">Source</label><input type="text" class="form-input" id="med-source"></div>
+      </div>
+      <div class="form-row"><label class="form-label">URL (cliquez pour copier)</label><input type="text" class="form-input" id="med-url" readonly onclick="this.select();document.execCommand('copy');showToast('Copié ✓')" style="cursor:pointer;background:#f5f5f5;font-family:monospace;font-size:11px"></div>
+    </div>
+    <div class="modal-footer"><button class="btn btn-danger btn-sm" onclick="delMed(document.getElementById('med-id').value);closeModal('med')">Supprimer</button><div style="flex:1"></div><button class="btn btn-ghost" onclick="closeModal('med')">Fermer</button><button class="btn btn-primary" onclick="saveMedDetail()">Enregistrer</button></div>
+  </div>
+</div>
+
+<!-- MODAL PUBLISH -->
+<div class="modal-overlay" id="modal-pub">
+  <div class="modal" style="max-width:520px">
+    <div class="modal-header"><div class="modal-title" id="pub-mtitle">🚀 Publier sur sitrep.fr</div><button class="modal-close" onclick="closeModal('pub')">×</button></div>
+    <div class="modal-body">
+      <div id="pub-ready">
+        <div style="background:#e8f5ee;border:1px solid #2e6e48;border-radius:6px;padding:14px 16px;margin-bottom:16px;font-size:13px;color:#2e6e48;font-weight:500">
+          ✅ Tout est prêt pour publier sur <strong>sitrep.fr</strong> via GitHub Pages
+        </div>
+        <div style="font-size:12px;color:var(--muted);margin-bottom:16px;line-height:1.6">
+          Cette action va pousser <strong id="pub-arts-count">0 article(s)</strong> publié(s) sur GitHub.<br>
+          GitHub Pages mettra le site à jour en <strong>~30 secondes</strong>.
+        </div>
+        <div style="background:#f5f5f5;border-radius:4px;padding:10px 12px;font-size:11px;font-family:monospace;color:var(--muted);margin-bottom:16px">
+          📁 index.html<br>
+          📁 articles/ (<span id="pub-arts-n">0</span> fichiers)<br>
+          📁 pages fixes
+        </div>
+      </div>
+      <div class="publish-progress" id="pub-progress" style="display:none">
+        <div style="font-size:12px;font-weight:600;color:var(--navy);margin-bottom:8px" id="pub-status">Initialisation…</div>
+        <div class="progress-bar-wrap"><div class="progress-bar" id="pub-bar"></div></div>
+        <div class="progress-log" id="pub-log"></div>
+      </div>
+    </div>
+    <div class="modal-footer" id="pub-footer">
+      <button class="btn btn-ghost" onclick="closeModal('pub')">Annuler</button>
+      <button class="btn btn-success" onclick="publishToGitHub()" id="pub-go-btn">🚀 Publier maintenant</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ─── CONFIG ──────────────────────────────────────────────────
+const PWD = 'sitrep2026';
+const GH_TOKEN = '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';
+const GH_USER = 'raf770';
+const GH_REPO = 'sitrep-website';
+const GH_BRANCH = 'main';
+
+// ─── DATA ─────────────────────────────────────────────────────
+const g=(k,d=[])=>{try{return JSON.parse(localStorage.getItem('s_'+k)||JSON.stringify(d));}catch{return d;}};
+const s=(k,v)=>localStorage.setItem('s_'+k,JSON.stringify(v));
+const sl=str=>str.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'');
+const uid=()=>Math.random().toString(36).substr(2,9);
+const fd=d=>d?new Date(d).toLocaleDateString('fr-FR',{day:'numeric',month:'short',year:'numeric'}):'—';
+const cc=(id,cid,max)=>{const v=document.getElementById(id).value;document.getElementById(cid).textContent=v.length;document.getElementById(cid).style.color=v.length>max?'var(--accent)':'var(--muted)';};
+const sbadge=s=>{const m={'Publié':'badge-green','Brouillon':'badge-gray','Programmé':'badge-orange','Archivé':'badge-purple'};return`<span class="badge ${m[s]||'badge-gray'}">${s||'Brouillon'}</span>`;};
+
+if(!localStorage.getItem('s_init')){
+  s('articles',[]);s('evenements',[]);s('medias',[]);
+  s('auteurs',[{id:'a1',prenom:'Karim',nom:'Mansouri',titre:'Expert géopolitique MENA',bio:'',photo:''},{id:'a2',prenom:'Sara',nom:'El-Amine',titre:'Chercheuse OSINT',bio:'',photo:''},{id:'a3',prenom:'Nadia',nom:'Khoury',titre:'Analyste économie politique',bio:'',photo:''}]);
+  s('categories',[{id:'c1',nom:'MENA',slug:'mena',type:'theme'},{id:'c2',nom:'Europe',slug:'europe',type:'theme'},{id:'c3',nom:'OSINT',slug:'osint',type:'theme'},{id:'c4',nom:'Podcasts',slug:'podcasts',type:'theme'},{id:'c5',nom:'Événements',slug:'evenements',type:'theme'},{id:'c6',nom:'Services',slug:'services',type:'theme'},{id:'f1',nom:'Décryptage',slug:'decryptage',type:'format'},{id:'f2',nom:'Note',slug:'note',type:'format'},{id:'f3',nom:'Analyse',slug:'analyse',type:'format'},{id:'f4',nom:'Entretien',slug:'entretien',type:'format'},{id:'f5',nom:'Brief',slug:'brief',type:'format'},{id:'f6',nom:'Podcast',slug:'podcast',type:'format'}]);
+  s('ticker',[{tag:'BREAKING',text:'Escalade en Mer Rouge — décryptage exclusif'},{tag:'PROGRAMME',text:'Iran post-accord — 8 Avril'},{tag:'',text:'Gaza : pourparlers à Doha, sources OSINT'},{tag:'PARIS',text:'Sahel & dynamiques sécuritaires — 15 Mai'}]);
+  s('pages',[]);
+  localStorage.setItem('s_init','1');
+}
+
+// AUTH
+function login(){if(document.getElementById('pwd-input').value===PWD){document.getElementById('login-screen').style.display='none';document.getElementById('admin-screen').style.display='flex';sessionStorage.setItem('sa','1');init();}else{document.getElementById('login-error').style.display='block';}}
+function logout(){sessionStorage.removeItem('sa');location.reload();}
+if(sessionStorage.getItem('sa')==='1'){document.getElementById('login-screen').style.display='none';document.getElementById('admin-screen').style.display='flex';init();}
+
+function init(){
+  const d=new Date();const j=['Dimanche','Lundi','Mardi','Mercredi','Jeudi','Vendredi','Samedi'];const m=['janvier','février','mars','avril','mai','juin','juillet','août','septembre','octobre','novembre','décembre'];
+  document.getElementById('dash-date').textContent=j[d.getDay()]+' '+d.getDate()+' '+m[d.getMonth()]+' '+d.getFullYear();
+  loadDash();loadTicker();populateAuts();
+  const lp=localStorage.getItem('s_lp');if(lp)document.getElementById('last-publish').textContent='Publié '+lp;
+}
+
+function showSection(name,el){
+  document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
+  document.querySelectorAll('.sidebar-link').forEach(l=>l.classList.remove('active'));
+  document.getElementById('section-'+name).classList.add('active');if(el)el.classList.add('active');
+  const fn={articles:renderArts,evenements:renderEvs,categories:renderCats,auteurs:renderAuts,medias:renderMeds,pages:renderPgs,ticker:loadTicker};
+  if(fn[name])fn[name]();
+}
+
+function switchTab(m,tab,el){document.querySelectorAll(`#modal-${m} .modal-tab`).forEach(t=>t.classList.remove('active'));document.querySelectorAll(`#modal-${m} .tab-content`).forEach(t=>t.classList.remove('active'));el.classList.add('active');document.getElementById(`${m}-tab-${tab}`).classList.add('active');}
+function openModal(id){document.getElementById('modal-'+id).classList.add('open');}
+function closeModal(id){document.getElementById('modal-'+id).classList.remove('open');}
+function showToast(msg,type='success'){const t=document.getElementById('toast');t.textContent=msg;t.className=`toast ${type} show`;setTimeout(()=>t.className='toast',3000);}
+function updateSlug(v){const sv=sl(v);document.getElementById('art-slug').value=sv;document.getElementById('sp').textContent=sv||'—';}
+
+// DASHBOARD
+function loadDash(){
+  const arts=g('articles');const evs=g('evenements');const meds=g('medias');
+  document.getElementById('s-pub').textContent=arts.filter(a=>a.statut==='Publié').length;
+  document.getElementById('s-brou').textContent=arts.filter(a=>a.statut==='Brouillon').length;
+  document.getElementById('s-ev').textContent=evs.filter(e=>e.pub).length;
+  document.getElementById('s-med').textContent=meds.length;
+  document.getElementById('badge-articles').textContent=arts.length;
+  document.getElementById('badge-medias').textContent=meds.length;
+  const tb=document.getElementById('dash-table');
+  if(!arts.length){tb.innerHTML='<tr><td colspan="6" class="loading">Aucun article. Commencez !</td></tr>';return;}
+  tb.innerHTML=arts.slice(0,6).map(a=>`<tr><td style="font-weight:600;max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${a.titre||'Sans titre'}</td><td><span class="badge badge-navy">${a.theme||'—'}</span></td><td><span class="badge badge-purple">${a.format||'—'}</span></td><td>${a.auteur||'—'}</td><td>${fd(a.date)}</td><td>${sbadge(a.statut)}</td></tr>`).join('');
+}
+
+// ARTICLES
+function renderArts(search=''){
+  const q=(search||document.querySelector('#section-articles .table-search')?.value||'').toLowerCase();
+  const st=document.getElementById('f-st')?.value||'';const th=document.getElementById('f-th')?.value||'';
+  let arts=g('articles').filter(a=>{if(q&&!(a.titre||'').toLowerCase().includes(q))return false;if(st&&a.statut!==st)return false;if(th&&a.theme!==th)return false;return true;});
+  document.getElementById('arts-count').textContent=arts.length+' article'+(arts.length>1?'s':'');
+  const tb=document.getElementById('arts-table');
+  if(!arts.length){tb.innerHTML='<tr><td colspan="9"><div class="empty-state"><div class="empty-state-icon">📝</div><div class="empty-state-text">Aucun article</div></div></td></tr>';return;}
+  tb.innerHTML=arts.map(a=>`<tr class="sortable-row" draggable="true" data-id="${a.id}">
+    <td><span style="cursor:grab;color:var(--muted);font-size:16px;user-select:none">⠿</span></td>
+    <td style="font-weight:600;max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${a.titre||'Sans titre'}</td>
+    <td><span class="badge badge-navy">${a.theme||'—'}</span></td>
+    <td><span class="badge badge-purple">${a.format||'—'}</span></td>
+    <td style="white-space:nowrap">${a.auteur||'—'}</td>
+    <td style="white-space:nowrap">${fd(a.date)}</td>
+    <td>${sbadge(a.statut)}</td>
+    <td>${a.une?'⭐':''}</td>
+    <td><div class="actions"><button class="btn btn-ghost btn-xs" onclick="editArt('${a.id}')">✏️</button><button class="btn btn-danger btn-xs" onclick="delArt('${a.id}')">🗑️</button></div></td>
+  </tr>`).join('');
+  initDrag();
+}
+
+function initDrag(){
+  let src=null;
+  document.querySelectorAll('.sortable-row').forEach(r=>{
+    r.addEventListener('dragstart',e=>{src=r;r.classList.add('dragging-item');e.dataTransfer.effectAllowed='move';});
+    r.addEventListener('dragend',()=>{src?.classList.remove('dragging-item');document.querySelectorAll('.drag-over-top').forEach(x=>x.classList.remove('drag-over-top'));});
+    r.addEventListener('dragover',e=>{e.preventDefault();r.classList.add('drag-over-top');});
+    r.addEventListener('dragleave',()=>r.classList.remove('drag-over-top'));
+    r.addEventListener('drop',e=>{
+      e.preventDefault();r.classList.remove('drag-over-top');if(!src||src===r)return;
+      const arts=g('articles');const si=arts.findIndex(a=>a.id===src.dataset.id);const ti=arts.findIndex(a=>a.id===r.dataset.id);
+      if(si<0||ti<0)return;const [item]=arts.splice(si,1);arts.splice(ti,0,item);
+      s('articles',arts);renderArts();showToast('Ordre mis à jour ✓ — publiez pour mettre en ligne');
+    });
+  });
+}
+
+function openArtModal(){
+  document.getElementById('art-id').value='';document.getElementById('art-mtitle').textContent='Nouvel article';
+  ['art-titre','art-chapeau','art-slug','art-corps','art-extrait','art-tags','art-lecture','art-image','art-credit','art-seo','art-meta'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('art-theme').value='';document.getElementById('art-format').value='';document.getElementById('art-langue').value='FR';document.getElementById('art-statut').value='Brouillon';
+  document.getElementById('art-une').checked=false;document.getElementById('art-home').checked=false;
+  document.getElementById('art-date').value=new Date().toISOString().split('T')[0];
+  document.getElementById('sp').textContent='—';
+  switchTab('art','c',document.querySelector('#modal-art .modal-tab'));
+  openModal('art');
+}
+
+function editArt(id){
+  const a=g('articles').find(a=>a.id===id);if(!a)return;
+  document.getElementById('art-mtitle').textContent='Modifier l\'article';
+  document.getElementById('art-id').value=id;
+  ['titre','chapeau','slug','corps','extrait','tags_str','lecture','image','credit'].forEach(k=>{const el=document.getElementById('art-'+k.replace('_str','s'));if(el)el.value=k==='tags_str'?(a.tags||[]).join(', '):(a[k.replace('_str','')]||'');});
+  document.getElementById('art-tags').value=(a.tags||[]).join(', ');
+  document.getElementById('art-theme').value=a.theme||'';document.getElementById('art-format').value=a.format||'';
+  document.getElementById('art-auteur').value=a.auteur||'';document.getElementById('art-langue').value=a.langue||'FR';
+  document.getElementById('art-date').value=a.date||'';document.getElementById('art-lecture').value=a.lecture||'';
+  document.getElementById('art-seo').value=a.seoTitle||'';document.getElementById('art-meta').value=a.metaDesc||'';
+  document.getElementById('art-statut').value=a.statut||'Brouillon';
+  document.getElementById('art-une').checked=a.une||false;document.getElementById('art-home').checked=a.home||false;
+  document.getElementById('sp').textContent=a.slug||'—';
+  openModal('art');
+}
+
+function saveArt(fs){
+  const titre=document.getElementById('art-titre').value.trim();if(!titre){showToast('Titre obligatoire','error');return;}
+  const arts=g('articles');const id=document.getElementById('art-id').value;
+  const slug=document.getElementById('art-slug').value||sl(titre);
+  const data={id:id||uid(),titre,chapeau:document.getElementById('art-chapeau').value,slug,corps:document.getElementById('art-corps').value,extrait:document.getElementById('art-extrait').value,theme:document.getElementById('art-theme').value,format:document.getElementById('art-format').value,tags:document.getElementById('art-tags').value.split(',').map(t=>t.trim()).filter(Boolean),auteur:document.getElementById('art-auteur').value,langue:document.getElementById('art-langue').value,date:document.getElementById('art-date').value,lecture:document.getElementById('art-lecture').value,image:document.getElementById('art-image').value,credit:document.getElementById('art-credit').value,seoTitle:document.getElementById('art-seo').value,metaDesc:document.getElementById('art-meta').value,statut:fs||document.getElementById('art-statut').value,une:document.getElementById('art-une').checked,home:document.getElementById('art-home').checked};
+  if(id){const i=arts.findIndex(a=>a.id===id);if(i>-1)arts[i]=data;else arts.unshift(data);}else arts.unshift(data);
+  s('articles',arts);closeModal('art');renderArts();loadDash();
+  showToast(data.statut==='Publié'?'Publié ✓ — cliquez "Publier sur sitrep.fr" pour mettre en ligne':'Brouillon sauvegardé ✓');
+}
+function delArt(id){if(!confirm('Supprimer ?'))return;s('articles',g('articles').filter(a=>a.id!==id));renderArts();loadDash();showToast('Supprimé');}
+
+// EVENEMENTS
+function renderEvs(){const evs=g('evenements');const tb=document.getElementById('ev-table');if(!evs.length){tb.innerHTML='<tr><td colspan="7"><div class="empty-state"><div class="empty-state-icon">📅</div><div class="empty-state-text">Aucun événement</div></div></td></tr>';return;}tb.innerHTML=evs.map(e=>`<tr><td style="font-weight:600">${e.titre}</td><td><span class="badge badge-navy">${e.type||'—'}</span></td><td>${fd(e.date)}</td><td>${e.lieu||'—'}</td><td>${e.int||'—'}</td><td>${sbadge(e.pub?'Publié':'Brouillon')}</td><td><div class="actions"><button class="btn btn-ghost btn-xs" onclick="editEv('${e.id}')">✏️</button><button class="btn btn-danger btn-xs" onclick="delEv('${e.id}')">🗑️</button></div></td></tr>`).join('');}
+function openEvModal(){document.getElementById('ev-id').value='';document.getElementById('ev-mtitle').textContent='Nouvel événement';['ev-titre','ev-lieu','ev-int','ev-lien'].forEach(id=>document.getElementById(id).value='');document.getElementById('ev-date').value='';document.getElementById('ev-pub').checked=false;openModal('ev');}
+function editEv(id){const e=g('evenements').find(e=>e.id===id);if(!e)return;document.getElementById('ev-id').value=id;document.getElementById('ev-mtitle').textContent='Modifier';document.getElementById('ev-titre').value=e.titre;document.getElementById('ev-type').value=e.type||'Webinaire';document.getElementById('ev-date').value=e.date||'';document.getElementById('ev-lieu').value=e.lieu||'';document.getElementById('ev-int').value=e.int||'';document.getElementById('ev-lien').value=e.lien||'';document.getElementById('ev-pub').checked=e.pub||false;openModal('ev');}
+function saveEv(){const titre=document.getElementById('ev-titre').value.trim();if(!titre){showToast('Titre requis','error');return;}const evs=g('evenements');const id=document.getElementById('ev-id').value;const data={id:id||uid(),titre,type:document.getElementById('ev-type').value,date:document.getElementById('ev-date').value,lieu:document.getElementById('ev-lieu').value,int:document.getElementById('ev-int').value,lien:document.getElementById('ev-lien').value,pub:document.getElementById('ev-pub').checked};if(id){const i=evs.findIndex(e=>e.id===id);if(i>-1)evs[i]=data;else evs.unshift(data);}else evs.unshift(data);s('evenements',evs);closeModal('ev');renderEvs();loadDash();showToast('Enregistré ✓');}
+function delEv(id){if(!confirm('Supprimer ?'))return;s('evenements',g('evenements').filter(e=>e.id!==id));renderEvs();loadDash();showToast('Supprimé');}
+
+// AUTEURS
+function renderAuts(){const auts=g('auteurs');const tb=document.getElementById('aut-table');if(!auts.length){tb.innerHTML='<tr><td colspan="4" class="loading">Aucun auteur</td></tr>';return;}tb.innerHTML=auts.map(a=>`<tr><td style="font-weight:600">${a.prenom} ${a.nom}</td><td>${a.titre||'—'}</td><td style="max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${a.bio||'—'}</td><td><div class="actions"><button class="btn btn-ghost btn-xs" onclick="editAut('${a.id}')">✏️</button><button class="btn btn-danger btn-xs" onclick="delAut('${a.id}')">🗑️</button></div></td></tr>`).join('');}
+function populateAuts(){const auts=g('auteurs');const sel=document.getElementById('art-auteur');sel.innerHTML='<option value="">Choisir…</option>'+auts.map(a=>`<option value="${a.prenom} ${a.nom}">${a.prenom} ${a.nom}</option>`).join('');}
+function openAutModal(){document.getElementById('aut-id').value='';['aut-pnom','aut-nom','aut-titre','aut-bio','aut-photo'].forEach(id=>document.getElementById(id).value='');openModal('aut');}
+function editAut(id){const a=g('auteurs').find(a=>a.id===id);if(!a)return;document.getElementById('aut-id').value=id;document.getElementById('aut-pnom').value=a.prenom;document.getElementById('aut-nom').value=a.nom;document.getElementById('aut-titre').value=a.titre||'';document.getElementById('aut-bio').value=a.bio||'';document.getElementById('aut-photo').value=a.photo||'';openModal('aut');}
+function saveAut(){const prenom=document.getElementById('aut-pnom').value.trim();const nom=document.getElementById('aut-nom').value.trim();if(!prenom||!nom){showToast('Prénom et nom requis','error');return;}const auts=g('auteurs');const id=document.getElementById('aut-id').value;const data={id:id||uid(),prenom,nom,titre:document.getElementById('aut-titre').value,bio:document.getElementById('aut-bio').value,photo:document.getElementById('aut-photo').value};if(id){const i=auts.findIndex(a=>a.id===id);if(i>-1)auts[i]=data;else auts.push(data);}else auts.push(data);s('auteurs',auts);closeModal('aut');renderAuts();populateAuts();showToast('Enregistré ✓');}
+function delAut(id){if(!confirm('Supprimer ?'))return;s('auteurs',g('auteurs').filter(a=>a.id!==id));renderAuts();populateAuts();showToast('Supprimé');}
+
+// CATEGORIES
+function renderCats(){const cats=g('categories');const rnd=(list,id)=>{document.getElementById(id).innerHTML=list.map(c=>`<tr><td style="font-weight:600">${c.nom}</td><td style="font-family:monospace;font-size:11px">${c.slug}</td><td><button class="btn btn-danger btn-xs" onclick="delCat('${c.id}')">🗑️</button></td></tr>`).join('');};rnd(cats.filter(c=>c.type==='theme'),'themes-t');rnd(cats.filter(c=>c.type==='format'),'formats-t');}
+function openCatModal(){document.getElementById('cat-id').value='';document.getElementById('cat-nom').value='';document.getElementById('cat-slug').value='';openModal('cat');}
+function saveCat(){const nom=document.getElementById('cat-nom').value.trim();if(!nom){showToast('Nom requis','error');return;}const cats=g('categories');const id=document.getElementById('cat-id').value;const data={id:id||uid(),nom,slug:document.getElementById('cat-slug').value||sl(nom),type:document.getElementById('cat-type').value};if(id){const i=cats.findIndex(c=>c.id===id);if(i>-1)cats[i]=data;}else cats.push(data);s('categories',cats);closeModal('cat');renderCats();showToast('Enregistré ✓');}
+function delCat(id){if(!confirm('Supprimer ?'))return;s('categories',g('categories').filter(c=>c.id!==id));renderCats();showToast('Supprimée');}
+
+// MEDIAS
+function renderMeds(q=''){const meds=g('medias').filter(m=>!q||m.nom.toLowerCase().includes(q.toLowerCase()));const grid=document.getElementById('media-grid');document.getElementById('meds-count').textContent=meds.length+' fichier'+(meds.length!==1?'s':'');document.getElementById('badge-medias').textContent=g('medias').length;if(!meds.length){grid.innerHTML='<div class="loading">Aucun média</div>';return;}grid.innerHTML=meds.map(m=>`<div class="media-card" onclick="openMedDetail('${m.id}')"><img class="media-thumb" src="${m.url}" alt="${m.alt||''}" onerror="this.style.background='#eee'"><button class="media-del" onclick="event.stopPropagation();delMed('${m.id}')">×</button><div class="media-info"><div class="media-name" title="${m.nom}">${m.nom}</div><div class="media-meta">${m.format||''} · ${m.poids||''}</div></div></div>`).join('');}
+function handleUpload(files){const meds=g('medias');Array.from(files).forEach(file=>{if(!file.type.startsWith('image/'))return;const reader=new FileReader();reader.onload=e=>{const ext=file.name.split('.').pop().toLowerCase();const base=file.name.replace(/\.[^.]+$/,'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'');const d=new Date();const nom=`${base}-${d.toLocaleString('fr-FR',{month:'long'}).toLowerCase()}-${d.getFullYear()}.${ext}`;const m={id:uid(),nom,url:e.target.result,alt:'',credit:'',source:'',format:ext.toUpperCase(),poids:file.size>1048576?(file.size/1048576).toFixed(1)+'Mo':Math.round(file.size/1024)+'Ko'};meds.unshift(m);s('medias',meds);renderMeds();showToast(nom+' ajouté ✓');};reader.readAsDataURL(file);});}
+function openMedDetail(id){const m=g('medias').find(m=>m.id===id);if(!m)return;document.getElementById('med-id').value=id;document.getElementById('med-nom').value=m.nom;document.getElementById('med-alt').value=m.alt||'';document.getElementById('med-credit').value=m.credit||'';document.getElementById('med-source').value=m.source||'';document.getElementById('med-url').value=m.url.length>80?m.url.substring(0,80)+'…':m.url;document.getElementById('med-preview').src=m.url;openModal('med');}
+function saveMedDetail(){const id=document.getElementById('med-id').value;const meds=g('medias');const i=meds.findIndex(m=>m.id===id);if(i<0)return;meds[i].nom=document.getElementById('med-nom').value;meds[i].alt=document.getElementById('med-alt').value;meds[i].credit=document.getElementById('med-credit').value;meds[i].source=document.getElementById('med-source').value;s('medias',meds);closeModal('med');renderMeds();showToast('Mis à jour ✓');}
+function delMed(id){s('medias',g('medias').filter(m=>m.id!==id));renderMeds();showToast('Supprimé');}
+
+// TICKER
+let tItems=[];
+function loadTicker(){tItems=g('ticker');renderTicker();}
+function renderTicker(){const c=document.getElementById('ticker-list');c.innerHTML=tItems.map((item,i)=>`<div class="ticker-item"><span style="cursor:grab;color:var(--muted)">⠿</span><span class="ticker-tag">${item.tag||'—'}</span><span style="flex:1;font-size:12px">${item.text}</span><button class="ticker-del" onclick="tItems.splice(${i},1);renderTicker()">×</button></div>`).join('');const content=tItems.map(i=>`${i.tag?`<strong>${i.tag}</strong> `:''}${i.text}<span style="margin:0 24px;opacity:.2">|</span>`).join('');document.getElementById('ticker-prev').innerHTML=content+content;}
+function addTicker(){const tag=document.getElementById('t-tag').value.trim();const text=document.getElementById('t-text').value.trim();if(!text){showToast('Texte requis','error');return;}tItems.push({tag,text});document.getElementById('t-tag').value='';document.getElementById('t-text').value='';renderTicker();}
+function saveTicker(){s('ticker',tItems);showToast('Ticker sauvegardé ✓');}
+
+// PAGES
+function renderPgs(){const pages=g('pages');const tb=document.getElementById('pg-table');if(!pages.length){tb.innerHTML='<tr><td colspan="3"><div class="empty-state"><div class="empty-state-icon">📄</div><div class="empty-state-text">Aucune page</div></div></td></tr>';return;}tb.innerHTML=pages.map(p=>`<tr><td style="font-weight:600">${p.titre}</td><td style="font-family:monospace;font-size:11px">sitrep.fr/${p.slug}.html</td><td><div class="actions"><button class="btn btn-ghost btn-xs" onclick="editPg('${p.id}')">✏️</button><button class="btn btn-danger btn-xs" onclick="delPg('${p.id}')">🗑️</button></div></td></tr>`).join('');}
+function openPgModal(){document.getElementById('pg-id').value='';['pg-titre','pg-slug','pg-contenu'].forEach(id=>document.getElementById(id).value='');openModal('pg');}
+function editPg(id){const p=g('pages').find(p=>p.id===id);if(!p)return;document.getElementById('pg-id').value=id;document.getElementById('pg-titre').value=p.titre;document.getElementById('pg-slug').value=p.slug;document.getElementById('pg-contenu').value=p.contenu||'';openModal('pg');}
+function savePg(){const titre=document.getElementById('pg-titre').value.trim();if(!titre){showToast('Titre requis','error');return;}const pages=g('pages');const id=document.getElementById('pg-id').value;const data={id:id||uid(),titre,slug:document.getElementById('pg-slug').value||sl(titre),contenu:document.getElementById('pg-contenu').value};if(id){const i=pages.findIndex(p=>p.id===id);if(i>-1)pages[i]=data;}else pages.push(data);s('pages',pages);closeModal('pg');renderPgs();showToast('Enregistré ✓');}
+function delPg(id){if(!confirm('Supprimer ?'))return;s('pages',g('pages').filter(p=>p.id!==id));renderPgs();showToast('Supprimée');}
+
+// ─── SITE GENERATOR ───────────────────────────────────────────
+const CSS=`*{box-sizing:border-box;margin:0;padding:0}body{background:#f5f2ee;color:#1a1f3a;font-family:'Inter',sans-serif;font-size:14px;line-height:1.5}a{text-decoration:none;color:inherit}:root{--navy:#1a2744;--navy2:#243560;--accent:#c0392b;--sand:#f5f2ee;--sand2:#ede8df;--border:#d8d2c8;--border2:#c8c0b0;--muted:#7a7468;--text:#1a1f3a;--text2:#2e3350}.top-strip{background:var(--navy);padding:0 36px;display:flex;align-items:center;justify-content:space-between;height:36px}.top-date{font-size:10px;letter-spacing:.08em;color:rgba(255,255,255,.45)}.top-live{display:flex;align-items:center;gap:5px;font-size:10px;font-weight:700;text-transform:uppercase;color:#e05a5a}.live-dot{width:5px;height:5px;border-radius:50%;background:#e05a5a;animation:blink 1.8s ease-in-out infinite}@keyframes blink{0%,100%{opacity:1}50%{opacity:.2}}.logo-row{background:var(--sand);padding:18px 36px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}.logo{font-family:'Barlow Condensed',sans-serif;font-size:48px;font-weight:800;letter-spacing:.06em;line-height:1;color:var(--navy)}.logo em{color:var(--accent);font-style:normal}.logo-sub{font-size:9px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);margin-top:4px}.logo-search{display:flex;align-items:center;border:1px solid var(--border2);background:#fff;padding:6px 12px;gap:8px}.search-icon{width:14px;height:14px;stroke:var(--muted)}.search-input{border:none;outline:none;font-family:'Inter',sans-serif;font-size:12px;color:var(--text);background:transparent;width:180px}.nav{background:var(--sand);border-bottom:2px solid var(--navy);display:flex;padding:0 36px;overflow-x:auto}.nav a{font-size:11px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);padding:11px 16px;position:relative;white-space:nowrap;text-decoration:none}.nav a:hover,.nav a.on{color:var(--navy)}.nav a.on::after{content:'';position:absolute;bottom:-2px;left:0;right:0;height:2px;background:var(--accent)}.ticker{background:var(--navy);padding:7px 0;overflow:hidden;white-space:nowrap}.ticker-track{display:inline-block;animation:scroll 38s linear infinite;font-size:10px;letter-spacing:.09em;color:rgba(255,255,255,.45)}.ticker-track strong{color:rgba(255,255,255,.85)}.tsep{margin:0 28px;opacity:.2}@keyframes scroll{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}.page{max-width:1240px;margin:0 auto;padding:32px 36px}.pillars{display:grid;grid-template-columns:repeat(3,1fr);border:1.5px solid var(--border2);margin-bottom:36px;background:#fff}.pillar{padding:24px 26px;border-right:1px solid var(--border)}.pillar:last-child{border-right:none}.pillar-stripe{width:28px;height:3px;margin-bottom:14px}.p1 .pillar-stripe{background:var(--navy)}.p2 .pillar-stripe{background:var(--accent)}.p3 .pillar-stripe{background:#2e6e48}.pillar-label{font-size:9px;font-weight:700;letter-spacing:.22em;text-transform:uppercase;color:var(--muted);margin-bottom:6px}.pillar-title{font-size:14px;font-weight:700;color:var(--text);line-height:1.35;margin-bottom:8px}.pillar-desc{font-size:12px;color:var(--muted);line-height:1.65;font-weight:300;margin-bottom:14px}.pillar-link{font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;text-decoration:none}.p1 .pillar-link{color:var(--navy)}.p2 .pillar-link{color:var(--accent)}.p3 .pillar-link{color:#2e6e48}.pillar-link::after{content:' →'}.sec{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;padding-bottom:10px;border-bottom:2px solid var(--navy)}.sec-title{font-size:10px;font-weight:800;letter-spacing:.25em;text-transform:uppercase;color:var(--navy)}.sec-link{font-size:10px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);text-decoration:none}.sec-link::after{content:' →'}.arts{display:grid;grid-template-columns:repeat(3,1fr);border:1.5px solid var(--border2);margin-bottom:36px;overflow:hidden;background:#fff}.art{overflow:hidden;border-right:1px solid var(--border);text-decoration:none;color:inherit;display:block}.art:last-child{border-right:none}.art:hover{background:var(--sand)}.art img{width:100%;height:150px;object-fit:cover;display:block;filter:brightness(.78) saturate(.75)}.art-body{padding:18px}.art-tag{display:inline-block;font-size:9px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;padding:3px 8px;background:var(--navy);color:#fff;margin-bottom:10px;border-radius:1px}.art-hl{font-size:15px;font-weight:700;color:var(--text);line-height:1.3;margin-bottom:7px}.art-deck{font-size:12px;color:var(--muted);line-height:1.6;margin-bottom:12px;font-weight:300}.art-meta{font-size:10px;color:#bbb;border-top:1px solid var(--border);padding-top:10px;display:flex;justify-content:space-between}.events{display:grid;grid-template-columns:repeat(4,1fr);border:1.5px solid var(--border2);margin-bottom:36px;overflow:hidden;background:#fff}.ev{padding:20px;border-right:1px solid var(--border)}.ev:last-child{border-right:none}.ev:hover{background:var(--sand)}.ev-stripe{height:3px;width:100%;margin-bottom:14px}.ev-webinar .ev-stripe{background:var(--navy)}.ev-conf .ev-stripe{background:var(--accent)}.ev-live .ev-stripe{background:#6a3090}.ev-podcast .ev-stripe{background:#2e6e48}.ev-type{font-size:9px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;margin-bottom:7px}.ev-webinar .ev-type{color:var(--navy)}.ev-conf .ev-type{color:var(--accent)}.ev-live .ev-type{color:#6a3090}.ev-podcast .ev-type{color:#2e6e48}.ev-date{font-size:10px;color:var(--muted);margin-bottom:7px}.ev-title{font-size:13px;font-weight:700;color:var(--text);line-height:1.35;margin-bottom:7px}.ev-who{font-size:11px;color:var(--muted);font-weight:300;margin-bottom:12px}.ev-who strong{color:var(--text2);font-weight:600}.ev-cta{font-size:9px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;text-decoration:none}.ev-webinar .ev-cta{color:var(--navy)}.ev-conf .ev-cta{color:var(--accent)}.ev-live .ev-cta{color:#6a3090}.ev-podcast .ev-cta{color:#2e6e48}.ev-cta::after{content:' →'}.bottom-row{display:grid;grid-template-columns:1fr 1fr;border:1.5px solid var(--border2);overflow:hidden;margin-bottom:36px}.conseil{background:var(--navy);padding:36px}.conseil-eyebrow{font-size:9px;font-weight:700;letter-spacing:.22em;text-transform:uppercase;color:rgba(255,255,255,.3);margin-bottom:10px}.conseil-title{font-size:21px;font-weight:800;color:#fff;line-height:1.25;margin-bottom:14px}.conseil-items{list-style:none;margin-bottom:24px;display:flex;flex-direction:column;gap:7px}.conseil-items li{font-size:12px;color:rgba(255,255,255,.55);font-weight:300;padding-left:16px;position:relative;line-height:1.55}.conseil-items li::before{content:'—';position:absolute;left:0;color:rgba(255,255,255,.35)}.btn-conseil{font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;padding:10px 20px;cursor:pointer;background:transparent;color:#fff;border:1.5px solid rgba(255,255,255,.35);font-family:'Inter',sans-serif}.nl-block{background:var(--sand2);padding:36px;display:flex;flex-direction:column;justify-content:center}.nl-eyebrow{font-size:9px;font-weight:700;letter-spacing:.22em;text-transform:uppercase;color:var(--accent);margin-bottom:10px}.nl-title{font-size:21px;font-weight:800;color:var(--text);line-height:1.25;margin-bottom:10px}.nl-desc{font-size:12px;color:var(--muted);font-weight:300;line-height:1.65;margin-bottom:20px}.nl-form{display:flex}.nl-input{flex:1;border:1.5px solid var(--border2);border-right:none;padding:11px 14px;font-size:13px;font-family:'Inter',sans-serif;outline:none;background:#fff}.nl-btn{background:var(--navy);color:#fff;border:1.5px solid var(--navy);font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;padding:11px 18px;cursor:pointer;font-family:'Inter',sans-serif}footer{background:var(--navy);padding:32px 36px 0}.footer-main{display:flex;align-items:flex-start;justify-content:space-between;gap:40px;padding-bottom:28px}.f-logo{font-family:'Barlow Condensed',sans-serif;font-size:26px;font-weight:800;color:#fff;letter-spacing:.05em;margin-bottom:4px}.f-logo em{color:var(--accent);font-style:normal}.f-tagline{font-size:9px;letter-spacing:.16em;text-transform:uppercase;color:rgba(255,255,255,.25);margin-bottom:16px}.f-social{display:flex;gap:6px}.f-social a{display:flex;align-items:center;justify-content:center;width:30px;height:30px;border:1px solid rgba(255,255,255,.15)}.f-social svg{width:12px;height:12px;fill:rgba(255,255,255,.4)}.f-cols{display:flex;gap:44px}.f-col-title{font-size:9px;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:rgba(255,255,255,.28);margin-bottom:12px}.f-col a{display:block;font-size:11px;color:rgba(255,255,255,.45);margin-bottom:7px;text-decoration:none}.f-col a:hover{color:#fff}.footer-bottom{border-top:1px solid rgba(255,255,255,.07);padding:12px 0;display:flex;justify-content:space-between;font-size:10px;color:rgba(255,255,255,.2)}.article-hero{position:relative;height:420px;overflow:hidden}.article-hero img{width:100%;height:100%;object-fit:cover;filter:brightness(.45)}.article-hero-over{position:absolute;inset:0;padding:48px;background:linear-gradient(to top,rgba(18,25,56,.97) 0%,transparent 60%);display:flex;flex-direction:column;justify-content:flex-end}.article-format{font-size:9px;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:rgba(255,255,255,.6);margin-bottom:10px}.article-title{font-size:32px;font-weight:800;line-height:1.15;color:#fff;margin-bottom:12px;max-width:800px}.article-meta-line{font-size:12px;color:rgba(255,255,255,.5);display:flex;gap:16px}.article-meta-line strong{color:rgba(255,255,255,.85);font-weight:500}.article-body{max-width:760px;margin:0 auto;padding:48px 36px}.article-chapeau{font-size:18px;font-weight:400;color:var(--muted);line-height:1.6;margin-bottom:32px;padding-bottom:32px;border-bottom:1px solid var(--border)}.article-content{font-size:15px;line-height:1.85;color:var(--text)}.article-content p{margin-bottom:20px}.article-content h2{font-size:22px;font-weight:700;margin:36px 0 14px;color:var(--navy)}.article-credit{font-size:10px;color:var(--muted);text-align:right;margin-bottom:16px}.article-tags{display:flex;gap:6px;flex-wrap:wrap;margin-top:32px;padding-top:24px;border-top:1px solid var(--border)}.tag{font-size:10px;font-weight:600;padding:3px 10px;background:var(--sand2);border:1px solid var(--border);border-radius:2px;color:var(--muted)}@media(max-width:900px){.pillars,.arts{grid-template-columns:1fr}.events{grid-template-columns:repeat(2,1fr)}.bottom-row{grid-template-columns:1fr}.footer-main{flex-direction:column}.page,.top-strip,.logo-row,.nav,footer{padding-left:16px;padding-right:16px}}`;
+
+function bHead(title='SITREP'){return`<!DOCTYPE html><html lang="fr"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>${title} — SITREP</title><link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Barlow+Condensed:wght@700;800&display=swap" rel="stylesheet"><style>${CSS}</style></head><body>`;}
+
+function bTopBar(){
+  const ticker=g('ticker');const tc=ticker.map(i=>`${i.tag?`<strong>${i.tag}</strong> `:''}${i.text}<span class="tsep">|</span>`).join('');
+  return`<div class="top-strip"><div style="display:flex;align-items:center;gap:16px"><span class="top-date" id="td"></span><span class="top-live"><span class="live-dot"></span>Live</span></div><div style="display:flex;align-items:center;gap:12px"><button style="font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#fff;cursor:pointer;padding:4px 14px;background:var(--accent);border:none;font-family:Inter,sans-serif;border-radius:2px">S'abonner</button></div></div><div class="logo-row"><div><a href="/index.html"><div class="logo">SIT<em>REP</em></div></a><div class="logo-sub">L'info au service de la décision</div></div><div class="logo-search"><svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg><input type="text" class="search-input" placeholder="Rechercher…"></div></div><nav class="nav"><a href="/index.html" class="on">Accueil</a><a href="#">MENA</a><a href="#">Europe</a><a href="#">OSINT</a><a href="#">Programme</a><a href="#">Services</a></nav><div class="ticker"><div class="ticker-track">${tc+tc}</div></div><script>const j=['Dimanche','Lundi','Mardi','Mercredi','Jeudi','Vendredi','Samedi'],m=['janvier','février','mars','avril','mai','juin','juillet','août','septembre','octobre','novembre','décembre'],d=new Date();document.getElementById('td').textContent=j[d.getDay()]+' '+d.getDate()+' '+m[d.getMonth()]+' '+d.getFullYear();<\/script>`;}
+
+function bFooter(){return`<footer><div class="footer-main"><div><div class="f-logo">SIT<em>REP</em></div><div class="f-tagline">L'info au service de la décision</div><div class="f-social"><a href="https://x.com/" target="_blank"><svg viewBox="0 0 24 24"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.74l7.73-8.835L1.254 2.25H8.08l4.259 5.63L18.244 2.25zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg></a><a href="https://linkedin.com/" target="_blank"><svg viewBox="0 0 24 24"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 01-2.063-2.065 2.064 2.064 0 112.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg></a></div></div><div class="f-cols"><div class="f-col"><div class="f-col-title">Notes & Décryptages</div><a href="#">MENA</a><a href="#">OSINT</a><a href="#">Europe</a></div><div class="f-col"><div class="f-col-title">Programme</div><a href="#">Séminaires</a><a href="#">Lives</a><a href="#">Podcasts</a></div><div class="f-col"><div class="f-col-title">Services</div><a href="#">Notre approche</a><a href="#">Contact</a></div></div></div><div class="footer-bottom"><span>© ${new Date().getFullYear()} SITREP</span><span>L'info au service de la décision</span></div></footer></body></html>`;}
+
+function genIndex(){
+  const arts=g('articles').filter(a=>a.statut==='Publié');
+  const evs=g('evenements').filter(e=>e.pub);
+  const hero=arts[0];const s1=arts[1];const s2=arts[2];
+  const EVC={'Webinaire':'ev-webinar','Conférence':'ev-conf','Live':'ev-live','Podcast':'ev-podcast','Table ronde':'ev-conf'};
+  const heroHTML=hero?`<div style="display:grid;grid-template-columns:2fr 1fr;border:1.5px solid var(--border2);margin-bottom:36px;overflow:hidden"><div style="position:relative;min-height:420px;overflow:hidden"><img src="${hero.image||'https://images.unsplash.com/photo-1541872703-74c5e44368f9?w=1000&q=80'}" style="width:100%;height:100%;object-fit:cover;display:block;filter:brightness(.45)"><div style="position:absolute;inset:0;padding:32px;background:linear-gradient(to top,rgba(18,25,56,.97) 0%,rgba(18,25,56,.2) 60%,transparent 100%);display:flex;flex-direction:column;justify-content:flex-end"><div style="font-size:9px;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:rgba(255,255,255,.6);margin-bottom:10px">${hero.format||'Note'} · ${hero.theme||''}</div><a href="articles/${hero.slug}.html" style="font-size:26px;font-weight:800;line-height:1.2;color:#fff;text-decoration:none;margin-bottom:10px;display:block">${hero.titre}</a><div style="font-size:11px;color:rgba(255,255,255,.45)"><strong style="color:rgba(255,255,255,.8)">${hero.auteur||''}</strong> · ${hero.date?new Date(hero.date).toLocaleDateString('fr-FR',{day:'numeric',month:'long',year:'numeric'}):''} ${hero.lecture?'· '+hero.lecture:''}</div></div></div><div style="display:flex;flex-direction:column;border-left:1px solid var(--border);background:#fff">${[s1,s2].filter(Boolean).map(a=>`<a href="articles/${a.slug}.html" style="padding:16px 18px;border-bottom:1px solid var(--border);display:flex;flex-direction:column;text-decoration:none;color:inherit;flex:1">${a.image?`<div style="width:100%;height:84px;overflow:hidden;margin-bottom:10px"><img src="${a.image}" style="width:100%;height:100%;object-fit:cover;display:block"></div>`:''}<div style="font-size:9px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--navy2);margin-bottom:4px">${a.theme||''}</div><div style="font-size:13px;font-weight:600;color:var(--text);line-height:1.35">${a.titre}</div></a>`).join('')}</div></div>`:'';
+  const artsHTML=arts.slice(0,3).map(a=>`<a class="art" href="articles/${a.slug}.html"><img src="${a.image||'https://images.unsplash.com/photo-1521295121783-8a321d551ad2?w=600&q=70'}" alt="${a.titre}"><div class="art-body"><div class="art-tag">${a.format||a.theme||'Note'}</div><div class="art-hl">${a.titre}</div><div class="art-deck">${a.extrait||''}</div><div class="art-meta"><span>${a.auteur||''}</span><span>${a.lecture||''}</span></div></div></a>`).join('')||'<div style="padding:20px;color:var(--muted);font-size:12px;grid-column:1/-1">Aucun article publié pour l\'instant.</div>';
+  const evsHTML=evs.slice(0,4).map(e=>`<div class="ev ${EVC[e.type]||'ev-webinar'}"><div class="ev-stripe"></div><div class="ev-type">${e.type||''}</div><div class="ev-date">${e.date?new Date(e.date).toLocaleDateString('fr-FR',{day:'numeric',month:'long'}):''} ${e.lieu?'· '+e.lieu:''}</div><div class="ev-title">${e.titre}</div><div class="ev-who">Avec <strong>${e.int||''}</strong></div><a href="${e.lien||'#'}" class="ev-cta">S'inscrire</a></div>`).join('')||'<div style="padding:20px;color:var(--muted);font-size:12px">Aucun événement.</div>';
+  return bHead('Accueil')+bTopBar()+`<div class="page"><div class="pillars"><div class="pillar p1"><div class="pillar-stripe"></div><div class="pillar-label">Décryptages & Notes OSINT</div><div class="pillar-title">Des lectures de fond sur les dynamiques géopolitiques du moment</div><div class="pillar-desc">Croisement de sources ouvertes, terrain et expertise académique.</div><a href="#" class="pillar-link">Explorer</a></div><div class="pillar p2"><div class="pillar-stripe"></div><div class="pillar-label">Programme & Rencontres</div><div class="pillar-title">Séminaires, tables rondes et lives avec nos experts</div><div class="pillar-desc">Un calendrier régulier pour débattre et comprendre les grands enjeux.</div><a href="#" class="pillar-link">Voir le programme</a></div><div class="pillar p3"><div class="pillar-stripe"></div><div class="pillar-label">Expertise & Accompagnement</div><div class="pillar-title">Notes sur mesure et due diligence géopolitique pour décideurs</div><div class="pillar-desc">Cartographie des risques et accompagnement confidentiel.</div><a href="#" class="pillar-link">Nous contacter</a></div></div>${heroHTML}<div class="sec"><div class="sec-title">Notes récentes</div><a href="#" class="sec-link">Toutes les notes</a></div><div class="arts">${artsHTML}</div><div class="sec"><div class="sec-title">Programme</div><a href="#" class="sec-link">Tout le calendrier</a></div><div class="events">${evsHTML}</div><div class="bottom-row"><div class="conseil"><div class="conseil-eyebrow">Expertise & Accompagnement</div><div class="conseil-title">Accompagnement géopolitique pour décideurs et organisations</div><ul class="conseil-items"><li>Notes de risque pays et cartographie des menaces</li><li>Due diligence géopolitique avant implantation</li><li>Notes confidentielles MENA, Afrique, Europe</li><li>Veille OSINT et alertes sur mesure</li></ul><button class="btn-conseil">Prendre contact →</button></div><div class="nl-block"><div class="nl-eyebrow">Briefing du matin</div><div class="nl-title">Le SITREP du matin</div><div class="nl-desc">Notes exclusives, signaux OSINT et calendrier des rencontres. Chaque matin, avant l'heure.</div><div class="nl-form"><input class="nl-input" type="email" placeholder="email@domaine.com"><button class="nl-btn">Recevoir →</button></div></div></div></div>`+bFooter();
+}
+
+function genArticle(a){
+  const tags=(a.tags||[]).map(t=>`<span class="tag">${t}</span>`).join('');
+  const corps=(a.corps||'').split('\n\n').map(p=>p.trim()?`<p>${p.replace(/\n/g,'<br>')}</p>`:'').join('');
+  return bHead(a.titre)+bTopBar()+`<div class="article-hero"><img src="${a.image||'https://images.unsplash.com/photo-1541872703-74c5e44368f9?w=1200&q=80'}" alt="${a.titre}"><div class="article-hero-over"><div class="article-format">${a.format||'Note'} · ${a.theme||''}</div><h1 class="article-title">${a.titre}</h1><div class="article-meta-line"><strong>${a.auteur||''}</strong><span>${a.date?new Date(a.date).toLocaleDateString('fr-FR',{day:'numeric',month:'long',year:'numeric'}):''}</span>${a.lecture?`<span>· ${a.lecture}</span>`:''}</div></div></div><div class="article-body">${a.chapeau?`<div class="article-chapeau">${a.chapeau}</div>`:''}${a.credit?`<div class="article-credit">${a.credit}</div>`:''}<div class="article-content">${corps||'<p>Contenu à venir.</p>'}</div>${tags?`<div class="article-tags">${tags}</div>`:''}</div>`+bFooter();
+}
+
+function genPage(p){
+  return bHead(p.titre)+bTopBar()+`<div class="page"><h1 style="font-size:28px;font-weight:800;color:var(--navy);margin-bottom:24px">${p.titre}</h1><div style="font-size:15px;line-height:1.8">${(p.contenu||'').split('\n').map(l=>l?`<p>${l}</p>`:'').join('')}</div></div>`+bFooter();
+}
+
+// ─── GITHUB API ───────────────────────────────────────────────
+async function ghApi(path, method='GET', body=null){
+  const opts={method,headers:{'Authorization':`token ${GH_TOKEN}`,'Content-Type':'application/json','Accept':'application/vnd.github.v3+json'}};
+  if(body) opts.body=JSON.stringify(body);
+  const res=await fetch(`https://api.github.com/repos/${GH_USER}/${GH_REPO}${path}`,opts);
+  return res.json();
+}
+
+async function ghPutFile(path, content, message){
+  // Get existing SHA if file exists
+  let sha=null;
+  try{const r=await ghApi(`/contents/${path}`);if(r.sha)sha=r.sha;}catch(e){}
+  const body={message,content:btoa(unescape(encodeURIComponent(content))),branch:GH_BRANCH};
+  if(sha)body.sha=sha;
+  return ghApi(`/contents/${path}`,'PUT',body);
+}
+
+function logPub(msg,type='info'){
+  const log=document.getElementById('pub-log');
+  const div=document.createElement('div');div.className='log-'+type;div.textContent=msg;
+  log.appendChild(div);log.scrollTop=log.scrollHeight;
+}
+
+function setProgress(pct,status){
+  document.getElementById('pub-bar').style.width=pct+'%';
+  document.getElementById('pub-status').textContent=status;
+}
+
+// PUBLISH MODAL
+function openPublishModal(){
+  const arts=g('articles').filter(a=>a.statut==='Publié');
+  document.getElementById('pub-arts-count').textContent=arts.length+' article'+(arts.length>1?'s':'');
+  document.getElementById('pub-arts-n').textContent=arts.length;
+  document.getElementById('pub-ready').style.display='block';
+  document.getElementById('pub-progress').style.display='none';
+  document.getElementById('pub-footer').style.display='flex';
+  document.getElementById('pub-go-btn').disabled=false;
+  document.getElementById('pub-go-btn').textContent='🚀 Publier maintenant';
+  openModal('pub');
+}
+
+async function publishToGitHub(){
+  const btn=document.getElementById('pub-go-btn');
+  btn.disabled=true;btn.textContent='⏳ Publication…';
+  document.getElementById('pub-ready').style.display='none';
+  document.getElementById('pub-progress').style.display='block';
+  document.getElementById('pub-footer').querySelector('.btn-ghost').style.display='none';
+  document.getElementById('pub-log').innerHTML='';
+
+  const arts=g('articles').filter(a=>a.statut==='Publié');
+  const pages=g('pages');
+  const total=arts.length+pages.length+1;
+  let done=0;
+
+  try{
+    // Index
+    setProgress(5,'Génération de index.html…');
+    logPub('Génération de index.html…');
+    await ghPutFile('index.html',genIndex(),'Update index.html');
+    done++;logPub('✓ index.html publié','ok');
+    setProgress(Math.round(done/total*85)+5,'Publication des articles…');
+
+    // Articles
+    for(const a of arts){
+      logPub(`Publication de articles/${a.slug}.html…`);
+      await ghPutFile(`articles/${a.slug}.html`,genArticle(a),`Update article: ${a.titre}`);
+      done++;logPub(`✓ ${a.slug}.html publié`,'ok');
+      setProgress(Math.round(done/total*85)+5,`Article ${done}/${arts.length}…`);
+    }
+
+    // Pages
+    for(const p of pages){
+      logPub(`Publication de ${p.slug}.html…`);
+      await ghPutFile(`${p.slug}.html`,genPage(p),`Update page: ${p.titre}`);
+      done++;logPub(`✓ ${p.slug}.html publié`,'ok');
+    }
+
+    setProgress(100,'✅ Publication terminée !');
+    logPub(`✅ ${done} fichier(s) publiés sur GitHub !`,'ok');
+    logPub('⏳ GitHub Pages met à jour sitrep.fr dans ~30 secondes…');
+
+    const now=new Date().toLocaleDateString('fr-FR',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'});
+    localStorage.setItem('s_lp',now);document.getElementById('last-publish').textContent='Publié '+now;
+
+    btn.textContent='✅ Publié !';btn.style.background='var(--green)';
+    setTimeout(()=>{closeModal('pub');showToast('Site mis à jour sur sitrep.fr ✓','success');},2000);
+
+  }catch(err){
+    logPub('❌ Erreur: '+err.message,'err');
+    setProgress(0,'Erreur lors de la publication');
+    btn.disabled=false;btn.textContent='🔄 Réessayer';
+    showToast('Erreur de publication','error');
+  }
+}
+</script>
+</body>
+</html>
