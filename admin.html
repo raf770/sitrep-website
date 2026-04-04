@@ -495,7 +495,7 @@ tr:hover td{background:#fafafa}
 <script>
 // ─── CONFIG ──────────────────────────────────────────────────
 const PWD = 'sitrep2026';
-const GH_TOKEN = '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';
+const GH_TOKEN = ''; // Token now stored securely in Vercel
 const GH_USER = 'raf770';
 const GH_REPO = 'sitrep-website';
 const GH_BRANCH = 'main';
@@ -717,12 +717,12 @@ async function ghApi(path, method='GET', body=null){
 }
 
 async function ghPutFile(path, content, message){
-  // Get existing SHA if file exists
-  let sha=null;
-  try{const r=await ghApi(`/contents/${path}`);if(r.sha)sha=r.sha;}catch(e){}
-  const body={message,content:btoa(unescape(encodeURIComponent(content))),branch:GH_BRANCH};
-  if(sha)body.sha=sha;
-  return ghApi(`/contents/${path}`,'PUT',body);
+  const response = await fetch('/api/publish', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({path, content, message})
+  });
+  return response.json();
 }
 
 function logPub(msg,type='info'){
