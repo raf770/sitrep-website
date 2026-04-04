@@ -136,6 +136,7 @@ tr:hover td{background:#fafafa}
 .log-ok{color:var(--green)}.log-err{color:var(--accent)}
 .img-preview{width:100%;height:140px;object-fit:cover;border-radius:4px;border:1px solid var(--border);margin-bottom:8px;display:none}
 .img-preview.show{display:block}
+.imgpos-btn.active{border-color:var(--navy)!important;color:var(--navy)!important;background:#e8ecf5!important}
 /* LAYOUT BUILDER */
 .layout-builder{display:flex;gap:24px}
 .layout-blocks{flex:1}
@@ -466,6 +467,40 @@ tr:hover td{background:#fafafa}
           </div>
         </div>
         <div class="form-row"><label class="form-label">Crédit image</label><input type="text" class="form-input" id="art-credit" placeholder="© Reuters"></div>
+        <div class="form-row">
+          <label class="form-label">Position de l'image</label>
+          <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:4px">
+            <label style="cursor:pointer;text-align:center">
+              <input type="radio" name="art-imgpos" id="art-imgpos-top" value="top" style="display:none">
+              <div class="imgpos-btn" onclick="setImgPos('top')" style="border:2px solid var(--border);border-radius:4px;padding:8px 4px;font-size:11px;font-weight:600;color:var(--muted);background:#fff;cursor:pointer">
+                <div style="margin-bottom:4px">⬆️</div>Haut
+              </div>
+            </label>
+            <label style="cursor:pointer;text-align:center">
+              <input type="radio" name="art-imgpos" id="art-imgpos-center" value="center" style="display:none" checked>
+              <div class="imgpos-btn" onclick="setImgPos('center')" style="border:2px solid var(--border);border-radius:4px;padding:8px 4px;font-size:11px;font-weight:600;color:var(--muted);background:#fff;cursor:pointer">
+                <div style="margin-bottom:4px">↕️</div>Centre
+              </div>
+            </label>
+            <label style="cursor:pointer;text-align:center">
+              <input type="radio" name="art-imgpos" id="art-imgpos-bottom" value="bottom" style="display:none">
+              <div class="imgpos-btn" onclick="setImgPos('bottom')" style="border:2px solid var(--border);border-radius:4px;padding:8px 4px;font-size:11px;font-weight:600;color:var(--muted);background:#fff;cursor:pointer">
+                <div style="margin-bottom:4px">⬇️</div>Bas
+              </div>
+            </label>
+            <label style="cursor:pointer;text-align:center">
+              <input type="radio" name="art-imgpos" id="art-imgpos-custom" value="custom" style="display:none">
+              <div class="imgpos-btn" onclick="setImgPos('custom')" style="border:2px solid var(--border);border-radius:4px;padding:8px 4px;font-size:11px;font-weight:600;color:var(--muted);background:#fff;cursor:pointer">
+                <div style="margin-bottom:4px">🎯</div>Perso
+              </div>
+            </label>
+          </div>
+          <div id="imgpos-custom-wrap" style="display:none;margin-top:10px">
+            <label class="form-label">Position verticale <span style="font-weight:400;color:var(--muted)" id="imgpos-val">50%</span></label>
+            <input type="range" id="art-imgpos-slider" min="0" max="100" value="50" style="width:100%;accent-color:var(--navy)" oninput="document.getElementById('imgpos-val').textContent=this.value+'%'">
+            <div style="display:flex;justify-content:space-between;font-size:10px;color:var(--muted)"><span>Haut</span><span>Bas</span></div>
+          </div>
+        </div>
         <div class="form-section-title">Publication</div>
         <div class="form-row"><label class="form-label">Statut</label><select class="form-select" id="art-statut"><option value="Brouillon">📝 Brouillon</option><option value="Programmé">⏰ Programmé</option><option value="Publié">✅ Publié</option><option value="Archivé">📦 Archivé</option></select></div>
         <div class="form-section-title">Mise en avant</div>
@@ -757,7 +792,7 @@ function openArtModal(){
   document.getElementById('art-une').checked=false;document.getElementById('art-home').checked=false;
   document.getElementById('art-date').value=new Date().toISOString().split('T')[0];
   document.getElementById('sp').textContent='—';
-  document.getElementById('art-img-preview').className='img-preview';
+  document.getElementById('art-img-preview').className='img-preview';restoreImgPos('center');
   switchTab('art','c',document.querySelector('#modal-art .modal-tab'));
   populateAuts();openModal('art');
 }
@@ -786,7 +821,7 @@ function editArt(id){
   document.getElementById('art-statut').value=a.statut||'Brouillon';
   document.getElementById('art-une').checked=a.une||false;
   document.getElementById('art-home').checked=a.home||false;
-  previewImg(a.image||'');
+  previewImg(a.image||'');restoreImgPos(a.imgpos||'center');
   populateAuts();openModal('art');
 }
 
@@ -794,7 +829,7 @@ function saveArt(fs){
   var titre=document.getElementById('art-titre').value.trim();if(!titre){showToast('Titre obligatoire','error');return;}
   var arts=g('articles');var id=document.getElementById('art-id').value;
   var slug=document.getElementById('art-slug').value||sl(titre);
-  var data={id:id||uid(),titre:titre,chapeau:document.getElementById('art-chapeau').value,slug:slug,corps:document.getElementById('art-corps').value,extrait:document.getElementById('art-extrait').value,theme:document.getElementById('art-theme').value,format:document.getElementById('art-format').value,tags:document.getElementById('art-tags').value.split(',').map(function(t){return t.trim();}).filter(Boolean),auteur:document.getElementById('art-auteur').value,langue:document.getElementById('art-langue').value,date:document.getElementById('art-date').value,lecture:document.getElementById('art-lecture').value,image:document.getElementById('art-image').value,credit:document.getElementById('art-credit').value,seoTitle:document.getElementById('art-seo').value,metaDesc:document.getElementById('art-meta').value,statut:fs||document.getElementById('art-statut').value,une:document.getElementById('art-une').checked,home:document.getElementById('art-home').checked};
+  var imgpos=getImgPos();var data={id:id||uid(),titre:titre,chapeau:document.getElementById('art-chapeau').value,slug:slug,corps:document.getElementById('art-corps').value,extrait:document.getElementById('art-extrait').value,theme:document.getElementById('art-theme').value,format:document.getElementById('art-format').value,tags:document.getElementById('art-tags').value.split(',').map(function(t){return t.trim();}).filter(Boolean),auteur:document.getElementById('art-auteur').value,langue:document.getElementById('art-langue').value,date:document.getElementById('art-date').value,lecture:document.getElementById('art-lecture').value,image:document.getElementById('art-image').value,credit:document.getElementById('art-credit').value,seoTitle:document.getElementById('art-seo').value,metaDesc:document.getElementById('art-meta').value,statut:fs||document.getElementById('art-statut').value,une:document.getElementById('art-une').checked,home:document.getElementById('art-home').checked,imgpos:imgpos};
   if(id){var i=arts.findIndex(function(a){return a.id===id;});if(i>-1)arts[i]=data;else arts.unshift(data);}else arts.unshift(data);
   sv('articles',arts);closeModal('art');renderArts();loadDash();
   showToast(data.statut==='Publié'?'Publié ✓ — pensez à republier le site !':'Brouillon sauvegardé ✓');
@@ -945,7 +980,7 @@ function genBlockHTML(blockId,arts,evs){
     var hero=arts[0];var side1=arts[1];var side2=arts[2];
     if(!hero)return '';
     var sideItems=[side1,side2].filter(Boolean).map(function(a){
-      return '<a href="articles/'+a.slug+'.html" style="padding:14px 16px;border-bottom:1px solid var(--border);display:flex;flex-direction:column;text-decoration:none;color:inherit;flex:1;overflow:hidden">'+(a.image?'<div style="width:100%;height:130px;overflow:hidden;margin-bottom:8px;flex-shrink:0"><img src="'+a.image+'" style="width:100%;height:100%;object-fit:cover;object-position:center 20%;display:block;filter:brightness(.85)"></div>':'')+'<div style="font-size:9px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--navy2);margin-bottom:4px">'+(a.theme||'')+'</div><div style="font-size:13px;font-weight:600;color:var(--text);line-height:1.35">'+(a.titre||'')+'</div></a>';
+      return '<a href="articles/'+a.slug+'.html" style="padding:14px 16px;border-bottom:1px solid var(--border);display:flex;flex-direction:column;text-decoration:none;color:inherit;flex:1;overflow:hidden">'+(a.image?'<div style="width:100%;height:130px;overflow:hidden;margin-bottom:8px;flex-shrink:0"><img src="'+a.image+'" style="width:100%;height:100%;object-fit:cover;object-position:'+(a.imgpos||'center')+';display:block;filter:brightness(.85)"></div>':'')+'<div style="font-size:9px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--navy2);margin-bottom:4px">'+(a.theme||'')+'</div><div style="font-size:13px;font-weight:600;color:var(--text);line-height:1.35">'+(a.titre||'')+'</div></a>';
     }).join('');
     return '<div style="display:grid;grid-template-columns:2fr 1fr;border:1.5px solid var(--border2);margin-bottom:36px;overflow:hidden"><div style="position:relative;min-height:420px;overflow:hidden"><img src="'+(hero.image||'https://images.unsplash.com/photo-1541872703-74c5e44368f9?w=1000&q=80')+'" style="width:100%;height:100%;object-fit:cover;display:block;filter:brightness(.45)"><div style="position:absolute;inset:0;padding:32px;background:linear-gradient(to top,rgba(18,25,56,.97) 0%,rgba(18,25,56,.2) 60%,transparent 100%);display:flex;flex-direction:column;justify-content:flex-end"><div style="font-size:9px;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:rgba(255,255,255,.6);margin-bottom:10px">'+(hero.format||'Note')+' · '+(hero.theme||'')+'</div><a href="articles/'+hero.slug+'.html" style="font-size:26px;font-weight:800;line-height:1.2;color:#fff;text-decoration:none;margin-bottom:10px;display:block">'+(hero.titre||'')+'</a><div style="font-size:11px;color:rgba(255,255,255,.45)"><strong style="color:rgba(255,255,255,.8)">'+(hero.auteur||'')+'</strong>'+(hero.date?' · '+new Date(hero.date).toLocaleDateString('fr-FR',{day:'numeric',month:'long',year:'numeric'}):'')+''+(hero.lecture?' · '+hero.lecture:'')+'</div></div></div><div style="display:flex;flex-direction:column;border-left:1px solid var(--border);background:#fff">'+sideItems+'</div></div>';
   }
@@ -959,7 +994,7 @@ function genBlockHTML(blockId,arts,evs){
     var gridArts=arts.slice(startIdx,startIdx+3);
     // If not enough articles after hero, show all from beginning
     if(!gridArts.length&&arts.length)gridArts=arts.slice(0,3);
-    var artsHTML=gridArts.length?gridArts.map(function(a){return'<a class="art" href="articles/'+a.slug+'.html"><img src="'+(a.image||'https://images.unsplash.com/photo-1521295121783-8a321d551ad2?w=600&q=70')+'" alt="'+(a.titre||'')+'"><div class="art-body"><div class="art-tag">'+(a.format||a.theme||'Note')+'</div><div class="art-hl">'+(a.titre||'')+'</div><div class="art-deck">'+(a.extrait||'')+'</div><div class="art-meta"><span>'+(a.auteur||'')+'</span><span>'+(a.lecture||'')+'</span></div></div></a>';}).join(''):'<div style="padding:20px;color:var(--muted);font-size:12px;grid-column:1/-1">Aucun article publi\u00e9.</div>';
+    var artsHTML=gridArts.length?gridArts.map(function(a){return'<a class="art" href="articles/'+a.slug+'.html"><img src="'+(a.image||'https://images.unsplash.com/photo-1521295121783-8a321d551ad2?w=600&q=70')+'" style="object-position:'+(a.imgpos||'center')+'" alt="'+(a.titre||'')+'"><div class="art-body"><div class="art-tag">'+(a.format||a.theme||'Note')+'</div><div class="art-hl">'+(a.titre||'')+'</div><div class="art-deck">'+(a.extrait||'')+'</div><div class="art-meta"><span>'+(a.auteur||'')+'</span><span>'+(a.lecture||'')+'</span></div></div></a>';}).join(''):'<div style="padding:20px;color:var(--muted);font-size:12px;grid-column:1/-1">Aucun article publi\u00e9.</div>';
     return '<div class="sec"><div class="sec-title">Notes r\u00e9centes</div><a href="#" class="sec-link">Toutes les notes</a></div><div class="arts">'+artsHTML+'</div>';
   }
   if(blockId==='evenements'){
@@ -983,7 +1018,7 @@ function genIndex(){
 function genArticle(a){
   var tags=(a.tags||[]).map(function(t){return'<span class="tag">'+t+'</span>';}).join('');
   var corps=(a.corps||'').split('\n\n').map(function(p){return p.trim()?'<p>'+p.replace(/\n/g,'<br>')+'</p>':'';}).join('');
-  return bHead(a.titre)+bTopBar()+'<div class="article-hero"><img src="'+(a.image||'https://images.unsplash.com/photo-1541872703-74c5e44368f9?w=1200&q=80')+'" alt="'+(a.titre||'')+'"><div class="article-hero-over"><div class="article-format">'+(a.format||'Note')+' · '+(a.theme||'')+'</div><h1 class="article-title">'+(a.titre||'')+'</h1><div class="article-meta-line"><strong>'+(a.auteur||'')+'</strong><span>'+(a.date?new Date(a.date).toLocaleDateString('fr-FR',{day:'numeric',month:'long',year:'numeric'}):'')+' </span>'+(a.lecture?'<span>\u00b7 '+a.lecture+'</span>':'')+'</div></div></div><div class="article-body">'+(a.chapeau?'<div class="article-chapeau">'+a.chapeau+'</div>':'')+(a.credit?'<div class="article-credit">'+a.credit+'</div>':'')+'<div class="article-content">'+(corps||'<p>Contenu \u00e0 venir.</p>')+'</div>'+(tags?'<div class="article-tags">'+tags+'</div>':'')+'</div>'+bFooter();
+  return bHead(a.titre)+bTopBar()+'<div class="article-hero"><img src="'+(a.image||'https://images.unsplash.com/photo-1541872703-74c5e44368f9?w=1200&q=80')+'" style="object-position:'+(a.imgpos||'center')+'" alt="'+(a.titre||'')+'">'<div class="article-hero-over"><div class="article-format">'+(a.format||'Note')+' · '+(a.theme||'')+'</div><h1 class="article-title">'+(a.titre||'')+'</h1><div class="article-meta-line"><strong>'+(a.auteur||'')+'</strong><span>'+(a.date?new Date(a.date).toLocaleDateString('fr-FR',{day:'numeric',month:'long',year:'numeric'}):'')+' </span>'+(a.lecture?'<span>\u00b7 '+a.lecture+'</span>':'')+'</div></div></div><div class="article-body">'+(a.chapeau?'<div class="article-chapeau">'+a.chapeau+'</div>':'')+(a.credit?'<div class="article-credit">'+a.credit+'</div>':'')+'<div class="article-content">'+(corps||'<p>Contenu \u00e0 venir.</p>')+'</div>'+(tags?'<div class="article-tags">'+tags+'</div>':'')+'</div>'+bFooter();
 }
 
 function genPage(p){
@@ -1043,6 +1078,46 @@ async function publishToGitHub(){
   }catch(err){
     logPub('❌ Erreur: '+err.message,'err');setProgress(0,'Erreur');
     btn.disabled=false;btn.textContent='Reessayer';showToast('Erreur de publication','error');
+  }
+}
+
+// IMAGE POSITION
+function setImgPos(pos){
+  document.querySelectorAll('.imgpos-btn').forEach(function(b){b.classList.remove('active');});
+  var btn=document.querySelector('[onclick="setImgPos(''+pos+'')"] .imgpos-btn, .imgpos-btn[onclick*="'+pos+'"]');
+  // Find by onclick
+  document.querySelectorAll('.imgpos-btn').forEach(function(b){
+    if(b.getAttribute('onclick')==="setImgPos('"+pos+"')")b.classList.add('active');
+  });
+  document.getElementById('imgpos-custom-wrap').style.display=pos==='custom'?'block':'none';
+  // Update preview
+  var img=document.getElementById('art-img-preview');
+  if(img){
+    var posMap={top:'top',center:'center',bottom:'bottom'};
+    img.style.objectPosition=pos==='custom'?document.getElementById('art-imgpos-slider').value+'%':posMap[pos]||'center';
+  }
+}
+
+function getImgPos(){
+  var pos='center';
+  document.querySelectorAll('.imgpos-btn').forEach(function(b){
+    if(b.classList.contains('active')){
+      var m=b.getAttribute('onclick').match(/setImgPos\('(\w+)'\)/);
+      if(m)pos=m[1];
+    }
+  });
+  if(pos==='custom')return document.getElementById('art-imgpos-slider').value+'%';
+  return pos==='top'?'top':pos==='bottom'?'bottom':'center';
+}
+
+function restoreImgPos(imgpos){
+  imgpos=imgpos||'center';
+  var isCustom=imgpos.includes('%')&&imgpos!=='top'&&imgpos!=='bottom'&&imgpos!=='center';
+  var pos=isCustom?'custom':imgpos;
+  setImgPos(pos);
+  if(isCustom){
+    document.getElementById('art-imgpos-slider').value=parseInt(imgpos);
+    document.getElementById('imgpos-val').textContent=imgpos;
   }
 }
 
