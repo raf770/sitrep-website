@@ -111,7 +111,18 @@
       "home": false
     }
   ],
-  "evenements": [],
+  "evenements": [
+    {
+      "id": "u261al215",
+      "titre": "WEBINAR : POINT DE SITUATION EN IRAN",
+      "type": "Webinaire",
+      "date": "2026-04-14",
+      "lieu": "Paris",
+      "int": "Mr Brown",
+      "lien": "",
+      "pub": true
+    }
+  ],
   "medias": [
     {
       "id": "wgbjk0g8x",
