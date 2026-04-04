@@ -277,5 +277,12 @@
       "text": "Tout soleil en France"
     }
   ],
-  "pages": []
+  "pages": [
+    {
+      "id": "nua23e9a6",
+      "titre": "ON TESTE LA PAGE FIXE",
+      "slug": "on-teste-la-page-fixe",
+      "contenu": "ON TESTE ON TESTE ON TESTE ON TESTE ON TESTE ON TESTE "
+    }
+  ]
 }
