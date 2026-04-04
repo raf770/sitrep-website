@@ -1,6 +1,28 @@
 {
   "articles": [
     {
+      "id": "np5qqar5w",
+      "titre": "TEST 19h20 du 04/04/26",
+      "chapeau": "TEST 19h20 du 04/04/26",
+      "slug": "test-19h20-du-04-04-26",
+      "corps": "TEST 19h20 du 04/04/26TEST 19h20 du 04/04/26TEST 19h20 du 04/04/26TEST 19h20 du 04/04/26TEST 19h20 du 04/04/26TEST 19h20 du 04/04/26TEST 19h20 du 04/04/26TEST 19h20 du 04/04/26TEST 19h20 du 04/04/26TEST 19h20 du 04/04/26TEST 19h20 du 04/04/26TEST 19h20 du 04/04/26TEST 19h20 du 04/04/26TEST 19h20 du 04/04/26TEST 19h20 du 04/04/26TEST 19h20 du 04/04/26TEST 19h20 du 04/04/26TEST 19h20 du 04/04/26TEST 19h20 du 04/04/26TEST 19h20 du 04/04/26TEST 19h20 du 04/04/26TEST 19h20 du 04/04/26TEST 19h20 du 04/04/26TEST 19h20 du 04/04/26TEST 19h20 du 04/04/26TEST 19h20 du 04/04/26TEST 19h20 du 04/04/26TEST 19h20 du 04/04/26TEST 19h20 du 04/04/26TEST 19h20 du 04/04/26TEST 19h20 du 04/04/26TEST 19h20 du 04/04/26TEST 19h20 du 04/04/26TEST 19h20 du 04/04/26",
+      "extrait": "",
+      "theme": "",
+      "format": "",
+      "tags": [],
+      "auteur": "",
+      "langue": "FR",
+      "date": "2026-04-04",
+      "lecture": "",
+      "image": "",
+      "credit": "",
+      "seoTitle": "",
+      "metaDesc": "",
+      "statut": "Publié",
+      "une": false,
+      "home": false
+    },
+    {
       "id": "1vhd5mwim",
       "titre": "LA FÊTE",
       "chapeau": "",
@@ -283,6 +305,43 @@
       "titre": "ON TESTE LA PAGE FIXE",
       "slug": "on-teste-la-page-fixe",
       "contenu": "ON TESTE ON TESTE ON TESTE ON TESTE ON TESTE ON TESTE "
+    }
+  ],
+  "layout": [
+    {
+      "id": "hero",
+      "label": "Article principal",
+      "icon": "🗞️",
+      "desc": "Grande photo + 2 articles côte à côte",
+      "visible": true
+    },
+    {
+      "id": "piliers",
+      "label": "Piliers éditoriaux",
+      "icon": "🏛️",
+      "desc": "Les 3 colonnes Décryptages / Programme / Services",
+      "visible": true
+    },
+    {
+      "id": "notes",
+      "label": "Notes récentes",
+      "icon": "📰",
+      "desc": "Grille des 3 derniers articles publiés",
+      "visible": true
+    },
+    {
+      "id": "evenements",
+      "label": "Programme",
+      "icon": "📅",
+      "desc": "Les 4 prochains événements",
+      "visible": true
+    },
+    {
+      "id": "conseil",
+      "label": "Conseil & Newsletter",
+      "icon": "💼",
+      "desc": "Bloc contact + inscription newsletter",
+      "visible": true
     }
   ]
 }
