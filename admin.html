@@ -1084,18 +1084,17 @@ async function publishToGitHub(){
 // IMAGE POSITION
 function setImgPos(pos){
   document.querySelectorAll('.imgpos-btn').forEach(function(b){b.classList.remove('active');});
-  var btn=document.querySelector('[onclick="setImgPos(''+pos+'')"] .imgpos-btn, .imgpos-btn[onclick*="'+pos+'"]');
-  // Find by onclick
   document.querySelectorAll('.imgpos-btn').forEach(function(b){
-    if(b.getAttribute('onclick')==="setImgPos('"+pos+"')")b.classList.add('active');
+    var oc=b.getAttribute('onclick')||'';
+    if(oc.indexOf("'"+pos+"'")>-1)b.classList.add('active');
   });
   document.getElementById('imgpos-custom-wrap').style.display=pos==='custom'?'block':'none';
-  // Update preview
   var img=document.getElementById('art-img-preview');
   if(img){
-    var posMap={top:'top',center:'center',bottom:'bottom'};
-    img.style.objectPosition=pos==='custom'?document.getElementById('art-imgpos-slider').value+'%':posMap[pos]||'center';
+    var pv=pos==='custom'?document.getElementById('art-imgpos-slider').value+'%':pos;
+    img.style.objectPosition=pv;
   }
+}
 }
 
 function getImgPos(){
