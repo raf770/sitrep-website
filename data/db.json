@@ -1,0 +1,143 @@
+{
+  "articles": [
+    {
+      "id": "m78ey065z",
+      "titre": "RAF1",
+      "chapeau": "",
+      "slug": "raf1",
+      "corps": "RAFFFF",
+      "extrait": "",
+      "theme": "",
+      "format": "",
+      "tags": [],
+      "auteur": "",
+      "langue": "FR",
+      "date": "2026-04-04",
+      "lecture": "",
+      "image": "https://media.tacdn.com/media/attractions-splice-spp-674x446/0b/38/37/34.jpg",
+      "credit": "",
+      "seoTitle": "",
+      "metaDesc": "",
+      "statut": "Publié",
+      "une": false,
+      "home": false
+    }
+  ],
+  "evenements": [],
+  "medias": [],
+  "auteurs": [
+    {
+      "id": "a1",
+      "prenom": "Karim",
+      "nom": "Mansouri",
+      "titre": "Expert géopolitique MENA",
+      "bio": "",
+      "photo": ""
+    },
+    {
+      "id": "a2",
+      "prenom": "Sara",
+      "nom": "El-Amine",
+      "titre": "Chercheuse OSINT",
+      "bio": "",
+      "photo": ""
+    },
+    {
+      "id": "a3",
+      "prenom": "Nadia",
+      "nom": "Khoury",
+      "titre": "Analyste économie politique",
+      "bio": "",
+      "photo": ""
+    }
+  ],
+  "categories": [
+    {
+      "id": "c1",
+      "nom": "MENA",
+      "slug": "mena",
+      "type": "theme"
+    },
+    {
+      "id": "c2",
+      "nom": "Europe",
+      "slug": "europe",
+      "type": "theme"
+    },
+    {
+      "id": "c3",
+      "nom": "OSINT",
+      "slug": "osint",
+      "type": "theme"
+    },
+    {
+      "id": "c4",
+      "nom": "Podcasts",
+      "slug": "podcasts",
+      "type": "theme"
+    },
+    {
+      "id": "c5",
+      "nom": "Événements",
+      "slug": "evenements",
+      "type": "theme"
+    },
+    {
+      "id": "c6",
+      "nom": "Services",
+      "slug": "services",
+      "type": "theme"
+    },
+    {
+      "id": "f1",
+      "nom": "Décryptage",
+      "slug": "decryptage",
+      "type": "format"
+    },
+    {
+      "id": "f2",
+      "nom": "Note",
+      "slug": "note",
+      "type": "format"
+    },
+    {
+      "id": "f3",
+      "nom": "Analyse",
+      "slug": "analyse",
+      "type": "format"
+    },
+    {
+      "id": "f4",
+      "nom": "Entretien",
+      "slug": "entretien",
+      "type": "format"
+    },
+    {
+      "id": "f5",
+      "nom": "Brief",
+      "slug": "brief",
+      "type": "format"
+    },
+    {
+      "id": "f6",
+      "nom": "Podcast",
+      "slug": "podcast",
+      "type": "format"
+    }
+  ],
+  "ticker": [
+    {
+      "tag": "BREAKING",
+      "text": "Escalade en Mer Rouge — décryptage exclusif"
+    },
+    {
+      "tag": "PROGRAMME",
+      "text": "Iran post-accord — 8 Avril"
+    },
+    {
+      "tag": "",
+      "text": "Gaza : pourparlers à Doha, sources OSINT"
+    }
+  ],
+  "pages": []
+}
