@@ -1,6 +1,28 @@
 {
   "articles": [
     {
+      "id": "1vhd5mwim",
+      "titre": "LA FÊTE",
+      "chapeau": "",
+      "slug": "la-fete",
+      "corps": "",
+      "extrait": "",
+      "theme": "Événements",
+      "format": "Brief",
+      "tags": [],
+      "auteur": "",
+      "langue": "FR",
+      "date": "2026-04-04",
+      "lecture": "",
+      "image": "https://www.borgenmagazine.com/wp-content/uploads/2014/03/Rave-Culture.jpg",
+      "credit": "",
+      "seoTitle": "",
+      "metaDesc": "",
+      "statut": "Publié",
+      "une": false,
+      "home": false
+    },
+    {
       "id": "jw85jpi1i",
       "titre": "BOUBA BOUBA BOUBA",
       "chapeau": "",
