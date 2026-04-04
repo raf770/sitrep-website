@@ -501,27 +501,71 @@ const GH_REPO = 'sitrep-website';
 const GH_BRANCH = 'main';
 
 // ─── DATA ─────────────────────────────────────────────────────
-const g=(k,d=[])=>{try{return JSON.parse(localStorage.getItem('s_'+k)||JSON.stringify(d));}catch{return d;}};
-const s=(k,v)=>localStorage.setItem('s_'+k,JSON.stringify(v));
+// ─── GITHUB STORAGE ──────────────────────────────────────────
+let DB={articles:[],evenements:[],medias:[],auteurs:[],categories:[],ticker:[],pages:[]};
+let DB_SHA=null;
+let DB_LOADED=false;
+
+async function loadDB(){
+  try{
+    const r=await fetch('https://raw.githubusercontent.com/'+GH_USER+'/'+GH_REPO+'/main/data/db.json?t='+Date.now());
+    if(r.ok){
+      const data=await r.json();
+      DB=data;
+      // Get SHA for updates
+      const meta=await fetch('https://api.github.com/repos/'+GH_USER+'/'+GH_REPO+'/contents/data/db.json',{headers:{'Authorization':'token '+GH_TOKEN}});
+      if(meta.ok){const m=await meta.json();DB_SHA=m.sha;}
+    }
+  }catch(e){console.log('DB not found, starting fresh');}
+  DB_LOADED=true;
+  // Init defaults if empty
+  if(!DB.auteurs||!DB.auteurs.length) DB.auteurs=[{id:'a1',prenom:'Karim',nom:'Mansouri',titre:'Expert géopolitique MENA',bio:'',photo:''},{id:'a2',prenom:'Sara',nom:'El-Amine',titre:'Chercheuse OSINT',bio:'',photo:''},{id:'a3',prenom:'Nadia',nom:'Khoury',titre:'Analyste économie politique',bio:'',photo:''}];
+  if(!DB.categories||!DB.categories.length) DB.categories=[{id:'c1',nom:'MENA',slug:'mena',type:'theme'},{id:'c2',nom:'Europe',slug:'europe',type:'theme'},{id:'c3',nom:'OSINT',slug:'osint',type:'theme'},{id:'c4',nom:'Podcasts',slug:'podcasts',type:'theme'},{id:'c5',nom:'Événements',slug:'evenements',type:'theme'},{id:'c6',nom:'Services',slug:'services',type:'theme'},{id:'f1',nom:'Décryptage',slug:'decryptage',type:'format'},{id:'f2',nom:'Note',slug:'note',type:'format'},{id:'f3',nom:'Analyse',slug:'analyse',type:'format'},{id:'f4',nom:'Entretien',slug:'entretien',type:'format'},{id:'f5',nom:'Brief',slug:'brief',type:'format'},{id:'f6',nom:'Podcast',slug:'podcast',type:'format'}];
+  if(!DB.ticker||!DB.ticker.length) DB.ticker=[{tag:'BREAKING',text:'Escalade en Mer Rouge — décryptage exclusif'},{tag:'PROGRAMME',text:'Iran post-accord — 8 Avril'},{tag:'',text:'Gaza : pourparlers à Doha, sources OSINT'}];
+  if(!DB.articles) DB.articles=[];
+  if(!DB.evenements) DB.evenements=[];
+  if(!DB.medias) DB.medias=[];
+  if(!DB.pages) DB.pages=[];
+}
+
+async function saveDB(){
+  try{
+    const r=await fetch('/api/publish',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({path:'data/db.json',content:JSON.stringify(DB,null,2),message:'Update DB'})});
+    const d=await r.json();
+    if(d.content&&d.content.sha) DB_SHA=d.content.sha;
+  }catch(e){console.error('saveDB error',e);}
+}
+
+const g=(k,d=[])=>DB[k]!==undefined?DB[k]:d;
+const s=(k,v)=>{DB[k]=v;saveDB();};
 const sl=str=>str.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'');
 const uid=()=>Math.random().toString(36).substr(2,9);
 const fd=d=>d?new Date(d).toLocaleDateString('fr-FR',{day:'numeric',month:'short',year:'numeric'}):'—';
 const cc=(id,cid,max)=>{const v=document.getElementById(id).value;document.getElementById(cid).textContent=v.length;document.getElementById(cid).style.color=v.length>max?'var(--accent)':'var(--muted)';};
 const sbadge=s=>{const m={'Publié':'badge-green','Brouillon':'badge-gray','Programmé':'badge-orange','Archivé':'badge-purple'};return`<span class="badge ${m[s]||'badge-gray'}">${s||'Brouillon'}</span>`;};
 
-if(!localStorage.getItem('s_init')){
-  s('articles',[]);s('evenements',[]);s('medias',[]);
-  s('auteurs',[{id:'a1',prenom:'Karim',nom:'Mansouri',titre:'Expert géopolitique MENA',bio:'',photo:''},{id:'a2',prenom:'Sara',nom:'El-Amine',titre:'Chercheuse OSINT',bio:'',photo:''},{id:'a3',prenom:'Nadia',nom:'Khoury',titre:'Analyste économie politique',bio:'',photo:''}]);
-  s('categories',[{id:'c1',nom:'MENA',slug:'mena',type:'theme'},{id:'c2',nom:'Europe',slug:'europe',type:'theme'},{id:'c3',nom:'OSINT',slug:'osint',type:'theme'},{id:'c4',nom:'Podcasts',slug:'podcasts',type:'theme'},{id:'c5',nom:'Événements',slug:'evenements',type:'theme'},{id:'c6',nom:'Services',slug:'services',type:'theme'},{id:'f1',nom:'Décryptage',slug:'decryptage',type:'format'},{id:'f2',nom:'Note',slug:'note',type:'format'},{id:'f3',nom:'Analyse',slug:'analyse',type:'format'},{id:'f4',nom:'Entretien',slug:'entretien',type:'format'},{id:'f5',nom:'Brief',slug:'brief',type:'format'},{id:'f6',nom:'Podcast',slug:'podcast',type:'format'}]);
-  s('ticker',[{tag:'BREAKING',text:'Escalade en Mer Rouge — décryptage exclusif'},{tag:'PROGRAMME',text:'Iran post-accord — 8 Avril'},{tag:'',text:'Gaza : pourparlers à Doha, sources OSINT'},{tag:'PARIS',text:'Sahel & dynamiques sécuritaires — 15 Mai'}]);
-  s('pages',[]);
-  localStorage.setItem('s_init','1');
-}
+// DB loaded from GitHub on init
 
 // AUTH
-function login(){if(document.getElementById('pwd-input').value===PWD){document.getElementById('login-screen').style.display='none';document.getElementById('admin-screen').style.display='flex';sessionStorage.setItem('sa','1');init();}else{document.getElementById('login-error').style.display='block';}}
+async function login(){
+  if(document.getElementById('pwd-input').value===PWD){
+    document.querySelector('.login-btn').textContent='Chargement…';
+    document.querySelector('.login-btn').disabled=true;
+    sessionStorage.setItem('sa','1');
+    await loadDB();
+    document.getElementById('login-screen').style.display='none';
+    document.getElementById('admin-screen').style.display='flex';
+    init();
+  }else{document.getElementById('login-error').style.display='block';}
+}
 function logout(){sessionStorage.removeItem('sa');location.reload();}
-if(sessionStorage.getItem('sa')==='1'){document.getElementById('login-screen').style.display='none';document.getElementById('admin-screen').style.display='flex';init();}
+if(sessionStorage.getItem('sa')==='1'){
+  // Show loading state
+  document.getElementById('login-screen').style.display='none';
+  document.getElementById('admin-screen').style.display='flex';
+  // Load DB then init
+  loadDB().then(()=>{init();});
+}
 
 function init(){
   const d=new Date();const j=['Dimanche','Lundi','Mardi','Mercredi','Jeudi','Vendredi','Samedi'];const m=['janvier','février','mars','avril','mai','juin','juillet','août','septembre','octobre','novembre','décembre'];
