@@ -193,16 +193,20 @@
   ],
   "ticker": [
     {
-      "tag": "BREAKING",
-      "text": "Escalade en Mer Rouge — décryptage exclusif"
+      "tag": "FOOT",
+      "text": "Ligue 1 : Le PSG bat Toulouse (3-1)"
     },
     {
-      "tag": "PROGRAMME",
-      "text": "Iran post-accord — 8 Avril"
+      "tag": "Israël",
+      "text": "Des débris de missile sur Tel Aviv"
     },
     {
-      "tag": "",
-      "text": "Gaza : pourparlers à Doha, sources OSINT"
+      "tag": "ITALIE",
+      "text": "Le trafic interrompu à Turin"
+    },
+    {
+      "tag": "MÉTÉO",
+      "text": "Tout soleil en France"
     }
   ],
   "pages": []
