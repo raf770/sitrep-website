@@ -167,6 +167,14 @@
       "titre": "Expert international",
       "bio": "",
       "photo": ""
+    },
+    {
+      "id": "a2r542sdw",
+      "prenom": "Pierre",
+      "nom": "Dupont",
+      "titre": "Expert cybersécurité",
+      "bio": "",
+      "photo": ""
     }
   ],
   "categories": [
