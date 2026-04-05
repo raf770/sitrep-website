@@ -1,0 +1,24 @@
+backend:
+  name: github
+  repo: raf770/sitrep-website
+  branch: main
+
+media_folder: "images"
+public_folder: "/images"
+
+collections:
+  - name: "articles"
+    label: "Articles"
+    folder: "_articles"
+    create: true
+    slug: "{{slug}}"
+    fields:
+      - {label: "Titre", name: "title", widget: "string"}
+      - {label: "Date", name: "date", widget: "datetime"}
+      - {label: "Thème", name: "theme", widget: "select", options: ["MENA", "Europe", "OSINT", "Podcasts", "Événements", "Services"]}
+      - {label: "Format", name: "format", widget: "select", options: ["Décryptage", "Note", "Analyse", "Entretien", "Brief", "Podcast"]}
+      - {label: "Auteur", name: "auteur", widget: "string"}
+      - {label: "Image", name: "image", widget: "image", required: false}
+      - {label: "Extrait", name: "extrait", widget: "text", required: false}
+      - {label: "Corps", name: "body", widget: "markdown"}
+      - {label: "Statut", name: "statut", widget: "select", options: ["Brouillon", "Publié", "Archivé"], default: "Brouillon"}
