@@ -12,19 +12,11 @@ export default async function handler(req, res) {
   
   const data = await response.json();
   const token = data.access_token;
-  
-  const script = token
-    ? `<script>
-        window.opener.postMessage(
-          'authorization:github:success:${JSON.stringify({token, provider:'github'})}',
-          '*'
-        );
-        window.close();
-      </script>`
-    : `<script>
-        window.opener.postMessage('authorization:github:error:access denied','*');
-        window.close();
-      </script>`;
+  const content = token
+    ? 'success:' + JSON.stringify({token: token, provider: 'github'})
+    : 'error:access denied';
+
+  const script = '<script>window.opener.postMessage("authorization:github:' + content + '", "*");window.close();<\/script>';
   
   res.setHeader('Content-Type', 'text/html');
   res.send(script);
