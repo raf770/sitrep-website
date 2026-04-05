@@ -2,7 +2,7 @@ backend:
   name: github
   repo: raf770/sitrep-website
   branch: main
-  base_url: https://sitrep-proxy.vercel.app
+  base_url: https://sitrep-website.vercel.app
   auth_endpoint: /api/oauth
 
 media_folder: "images"
